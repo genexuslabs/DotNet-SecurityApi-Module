@@ -104,7 +104,7 @@ namespace GeneXusJWT.GenexusJWT
         }
 
         [SecuritySafeCritical]
-        public bool DoVerify(string token, JWTOptions options)
+        public bool DoVerify(string token, PrivateClaims privateClaims,  JWTOptions options)
         {
             if (options.HasError())
             {
@@ -122,7 +122,7 @@ namespace GeneXusJWT.GenexusJWT
 
             JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
             JwtSecurityToken jwtToken = new JwtSecurityToken(token);
-            if (validateRegisteredClaims(jwtToken, options) && !isRevoqued(jwtToken, options))
+            if (validateRegisteredClaims(jwtToken, options) && !isRevoqued(jwtToken, options) && verifyPrivateClaims(jwtToken, privateClaims))
             {//if validates all registered claims and it is not on revocation list
                 TokenValidationParameters parms = new TokenValidationParameters();
                 parms.ValidateLifetime = false;
@@ -304,6 +304,33 @@ namespace GeneXusJWT.GenexusJWT
                     return "";
             }
 
+        }
+
+        private bool verifyPrivateClaims(JwtSecurityToken jwtToken, PrivateClaims privateClaims)
+        {
+            if (privateClaims == null || privateClaims.isEmpty())
+            {
+                return true;
+            }
+
+            JwtPayload map = jwtToken.Payload;
+
+            List<Claim> claims = privateClaims.getAllClaims();
+            for (int i = 0; i < claims.Count; i++)
+            {
+                Claim c = claims[i];
+                if (!map.ContainsKey(c.getKey()))
+                {
+                    return false;
+                }
+
+                string claim =(System.String)map[c.getKey()];
+                if (!SecurityUtils.compareStrings(claim.Trim(), c.getValue().Trim()))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }
