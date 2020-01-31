@@ -435,14 +435,12 @@ namespace GeneXusXmlSignature.GeneXusDSig
 
             XmlNode node = nodeList[0];
             string path = node.InnerText;
-            Console.WriteLine("path: " + path);
             XmlNode signedNode = SignatureUtils.getNodeFromPath(doc, path, this.error);
             if (this.HasError())
             {
                 return false;
             }
             XmlElement pathElement = signedNode as XmlElement;
-            Console.WriteLine("pathElement: " + pathElement.OuterXml);
             SignedXml signedXML = new SignedXml(pathElement);
             XmlNodeList signatureNodes = doc.GetElementsByTagName("Signature", SignedXml.XmlDsigNamespaceUrl);
             //java xmlsec hack
@@ -453,7 +451,6 @@ namespace GeneXusXmlSignature.GeneXusDSig
             bool res = false;
             try
             {
-                Console.WriteLine("signaturenodes: " + signatureNodes[0].OuterXml);
                 signedXML.LoadXml((XmlElement)signatureNodes[0]);
                 res = signedXML.CheckSignature();
             }
