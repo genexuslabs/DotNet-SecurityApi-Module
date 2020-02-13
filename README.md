@@ -15,7 +15,7 @@ These are the source of the GeneXus Security API.
 # How to compile
 
 ## Requirements
-Visual Stuio 2019 or dotnet SDK >= 3.1 
+Visual Studio 2019 or dotnet SDK >= 3.1 
 - .Net framework 4.6 
 - .Net framework 4.7 is required for GeneXus SFTP Module
 
@@ -42,3 +42,7 @@ Visual Stuio 2019 or dotnet SDK >= 3.1
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+## GeneXus SecurityApi-Module GeneXus Wiki Documentation
+
+https://wiki.genexus.com/commwiki/servlet/wiki?43916,Toc%3AGeneXus+Security+API
