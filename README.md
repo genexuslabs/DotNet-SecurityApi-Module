@@ -3,14 +3,27 @@ These are the source of the GeneXus Security API.
 
 ## Modules
 
+### .NET
+
 | Name  | Description
 |---|---
 | SecurityAPICommons | Classes common to all GeneXusSecurityAPI modules, output is GeneXusSecurityAPICommonsImpl.dll
 | GeneXusCryptography | GeneXus Cryptography Module, output is GeneXusCryptographyImpl.dll
 | GeneXusXmlSignature | GeneXus Xml Signature Module, output is GeneXusXmlSignatureImpl.dll
 | GeneXusJWT | GeneXus Json Web Token Module, output is GeneXusJWTImpl.dll
-| GeneXusSftp | GeneXus SFTP Module, output is GeneXusSftpImpl.dll
+| GeneXusSftp | GeneXus SFTP Module, output is GeneXusSftpClientImpl.dll
+| GeneXusFtps | GeneXus FTPS Module, output is GeneXusFtpsImpl.dll
 
+### .NET Core
+
+| Name  | Description
+|---|---
+| SecurityAPICommons | Classes common to all GeneXusSecurityAPI modules, output is GeneXusSecurityAPICommonsNetCoreImpl.dll
+| GeneXusCryptography | GeneXus Cryptography Module, output is GeneXusCryptographyNetCoreImpl.dll
+| GeneXusXmlSignature | GeneXus Xml Signature Module, output is GeneXusXmlSignatureNetCoreImpl.dll
+| GeneXusJWT | GeneXus Json Web Token Module, output is GeneXusJWTNetCoreImpl.dll
+| GeneXusSftp | GeneXus SFTP Module, output is GeneXusSftpNetCoreImpl.dll
+| GeneXusFtps | GeneXus FTPS Module, output is GeneXusFtpsNetCoreImpl.dll
 
 # How to compile
 
