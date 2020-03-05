@@ -60,12 +60,6 @@ namespace Sftp.GeneXusSftp
 			get { return knownHostsPath; }
 			set { SetKnownHostsPath(value); }
 		}
-		private ExtensionsWhiteList _whiteList;
-		public ExtensionsWhiteList WhiteList
-		{
-			get { return this._whiteList; }
-			set { this._whiteList = value; }
-		}
 
 		[SecuritySafeCritical]
 		public SftpOptions() : base()
@@ -78,7 +72,6 @@ namespace Sftp.GeneXusSftp
 			this.keyPassword = "";
 			this.allowHostKeyChecking = true;
 			this.knownHostsPath = "";
-			this._whiteList = null;
 		}
 
 		private void SetKeyPath(String value)
