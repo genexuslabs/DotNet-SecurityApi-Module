@@ -22,6 +22,7 @@ namespace Sftp.GeneXusSftp
         private Renci.SshNet.SftpClient channel;
         private static KnownHostStore _knownHosts;
         private bool fingerprint;
+        private ExtensionsWhiteList whiteList;
 
 
         [SecuritySafeCritical]
@@ -30,6 +31,7 @@ namespace Sftp.GeneXusSftp
 
             this.channel = null;
             this.fingerprint = false;
+            this.whiteList = null;
 
 
         }
@@ -95,7 +97,7 @@ namespace Sftp.GeneXusSftp
             }
 
 
-
+            this.whiteList = options.WhiteList;
             return true;
 
         }
@@ -103,6 +105,14 @@ namespace Sftp.GeneXusSftp
         [SecuritySafeCritical]
         public override bool Put(String localPath, String remoteDir)
         {
+            if (this.whiteList != null)
+            {
+                if (!this.whiteList.IsValid(localPath))
+                {
+                    this.error.setError("WL001", "Invalid file extension");
+                    return false;
+                }
+            }
             if (SecurityUtils.compareStrings("", localPath) || localPath == null || localPath.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
             {
                 this.error.setError("SF0012", "localPath cannot be empty");
@@ -160,6 +170,14 @@ namespace Sftp.GeneXusSftp
         [SecuritySafeCritical]
         public override bool Get(String remoteFilePath, String localDir)
         {
+            if (this.whiteList != null)
+            {
+                if (!this.whiteList.IsValid(remoteFilePath))
+                {
+                    this.error.setError("WL002", "Invalid file extension");
+                    return false;
+                }
+            }
             if (SecurityUtils.compareStrings("", remoteFilePath) || remoteFilePath == null || remoteFilePath.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
             {
                 this.error.setError("SF013", "remoteFilePath cannot be empty");
