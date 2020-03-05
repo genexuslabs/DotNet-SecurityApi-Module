@@ -63,12 +63,27 @@ namespace GeneXusFtps.GeneXusFtps
 			get { return this._trustStorePath; }
 			set { SetTrustStorePath(value); }
 		}
+
+		private string _trustStorePassword;
+		public string TrustStorePassword
+		{
+			get { return this._trustStorePassword; }
+			set { this._trustStorePassword = value; }
+		}
 		private FtpsProtocol _protocol;
 		public string Protocol
 		{
 			get { return FtpsProtocolUtils.valueOf(this._protocol, this.error); }
 			set { this._protocol = FtpsProtocolUtils.getFtpsProtocol(value, this.error); }
 		}
+
+		private ExtensionsWhiteList _whiteList;
+		public ExtensionsWhiteList WhiteList
+		{
+			get { return this._whiteList; }
+			set { this._whiteList = value; }
+		}
+
 		[SecuritySafeCritical]
 		public FtpsOptions() : base()
 		{
@@ -81,14 +96,16 @@ namespace GeneXusFtps.GeneXusFtps
 			this._encoding = FtpEncoding.BINARY;
 			this._encryptionMode = FtpEncryptionMode.EXPLICIT;
 			this._trustStorePath = "";
+			this._trustStorePassword = "";
 			this._protocol = FtpsProtocol.TLS1_2;
+			this._whiteList = null;
 		}
 
 		[SecuritySafeCritical]
 		public void SetTrustStorePath(String value)
 		{
 			if (!(SecurityUtils.extensionIs(value, ".pfx") || SecurityUtils.extensionIs(value, ".p12")
-					|| SecurityUtils.extensionIs(value, ".jks")))
+					|| SecurityUtils.extensionIs(value, ".jks") || SecurityUtils.extensionIs(value, ".crt")))
 			{
 				error.setError("FO001", "Unexpected extension for trust store); valid extensions: .p12 .jks .pfx");
 			}

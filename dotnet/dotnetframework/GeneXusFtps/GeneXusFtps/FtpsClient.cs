@@ -5,8 +5,10 @@ using SecurityAPICommons.Utils;
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Security;
 using System.Security;
 using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace GeneXusFtps.GeneXusFtps
@@ -16,11 +18,13 @@ namespace GeneXusFtps.GeneXusFtps
     {
         private FtpClient client;
         private string pwd;
+        private ExtensionsWhiteList whiteList;
 
         [SecuritySafeCritical]
         public FtpsClient() : base()
         {
             this.client = null;
+            this.whiteList = null;
         }
 
         /******** EXTERNAL OBJECT PUBLIC METHODS - BEGIN ********/
@@ -50,9 +54,33 @@ namespace GeneXusFtps.GeneXusFtps
             };
 
             this.client.DownloadDataType = SetEncoding(options);
-            this.client.SslProtocols = SetProtocol(options);
+           
+            SslProtocols protocols = SetProtocol(options); ;
+            if (protocols ==  SslProtocols.None)
+            {
+                return false;
+            }
+            this.client.SslProtocols = protocols;
             this.client.DataConnectionEncryption = options.ForceEncryption;
-            this.client.ValidateCertificate += Client_ValidateCertificate;
+            if (SecurityUtils.compareStrings("", options.TrustStorePath))
+            {
+                this.client.ValidateCertificate += (control, e1) =>
+                {
+                    e1.Accept = true;
+                };
+            }
+            else
+            {
+                X509Certificate2 cert_grt = new X509Certificate2(options.TrustStorePath, options.TrustStorePassword);
+                client.ValidateCertificate += (control, e1) =>
+                {
+
+                    X509Chain verify = new X509Chain();
+                    verify.Build(new X509Certificate2(e1.Certificate));
+                    e1.Accept = SecurityUtils.compareStrings(verify.ChainElements[verify.ChainElements.Count - 1].Certificate.Thumbprint, cert_grt.Thumbprint);
+                };
+            }
+            
             try
             {
                 this.client.Connect();
@@ -74,16 +102,21 @@ namespace GeneXusFtps.GeneXusFtps
                 this.error.setError("FS009", "Connection error");
                 return false;
             }
+            this.whiteList = options.WhiteList;
             return true;
         }
-
-
-
-
 
         [SecuritySafeCritical]
         public override bool Put(string localPath, string remoteDir)
         {
+            if (this.whiteList != null)
+            {
+                if (!this.whiteList.IsValid(localPath))
+                {
+                    this.error.setError("WL001", "Invalid file extension");
+                    return false;
+                }
+            }
             if (this.client == null || !this.client.IsConnected)
             {
                 this.error.setError("FS003", "The connection is invalid, reconect");
@@ -106,7 +139,10 @@ namespace GeneXusFtps.GeneXusFtps
             bool isStored = false;
             try
             {
-                isStored = this.client.Upload(new FileStream(localPath, FileMode.Open), AddFileName(localPath, remoteDir), FtpRemoteExists.Overwrite, true);
+                FileStream fs = new FileStream(localPath, FileMode.Open);
+                isStored = this.client.Upload(fs, AddFileName(localPath, remoteDir), FtpRemoteExists.Overwrite, true);
+                fs.Close();
+                
                 if (!isStored)
                 {
                     this.error.setError("FS012", " Reply String: " + this.client.LastReply);
@@ -123,6 +159,14 @@ namespace GeneXusFtps.GeneXusFtps
         [SecuritySafeCritical]
         public override bool Get(string remoteFilePath, string localDir)
         {
+            if (this.whiteList != null)
+            {
+                if (!this.whiteList.IsValid(remoteFilePath))
+                {
+                    this.error.setError("WL002", "Invalid file extension");
+                    return false;
+                }
+            }
             if (this.client == null || !this.client.IsConnected)
             {
                 this.error.setError("FS010", "The connection is invalid, reconect");
@@ -145,6 +189,7 @@ namespace GeneXusFtps.GeneXusFtps
 
             FileStream fileStream = File.Create(AddFileName(remoteFilePath, localDir));
             bool isDownloaded = false;
+            
             try
             {
                 isDownloaded = this.client.Download(fileStream, remoteFilePath, 0);
@@ -152,20 +197,29 @@ namespace GeneXusFtps.GeneXusFtps
             catch (Exception e1)
             {
                 this.error.setError("FS005", "Error retrieving file " + e1.Message);
+                fileStream.Close();
                 return false;
             }
+            
             if (fileStream == null || !isDownloaded)
             {
                 this.error.setError("FS007", "Could not retrieve file");
                 return false;
             }
+            fileStream.Close();
             return true;
         }
 
         [SecuritySafeCritical]
         public override void Disconnect()
         {
-            this.client.Disconnect();
+            try
+            {
+                this.client.Disconnect();
+            }catch(Exception)
+            {
+                //NOOP
+            }
         }
 
         [SecuritySafeCritical]
@@ -248,9 +302,11 @@ namespace GeneXusFtps.GeneXusFtps
                 case FtpsProtocol.TLS1_2:
                     return SslProtocols.Tls12;
                 case FtpsProtocol.SSLv2:
-                    return SslProtocols.Ssl2;
+                    this.error.setError("FS0014", "Deprecated protocol, not implemented for .NetCore");
+                    return SslProtocols.None;
                 case FtpsProtocol.SSLv3:
-                    return SslProtocols.Ssl3;
+                    this.error.setError("FS0015", "Deprecated protocol, not implemented for .NetCore");
+                    return SslProtocols.None;
                 default:
                     return SslProtocols.Tls;
             }
@@ -261,11 +317,6 @@ namespace GeneXusFtps.GeneXusFtps
             string path11 = Path.GetDirectoryName(path1);
             string path22 = Path.GetDirectoryName(path2);
             return path11.CompareTo(path22) == 0;
-        }
-
-        private static void Client_ValidateCertificate(FtpClient control, FtpSslValidationEventArgs e)
-        {
-            e.Accept = true;
         }
 
         private Stream PathToStream(string path)
