@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>GeneXusSecurityAPICommonsNetCoreImpl</AssemblyName>
-    <Version>1.0.0.0</Version>
+    <Version>1.0.0.2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -25,6 +25,7 @@
     <Compile Include="..\..\dotnetframework\SecurityAPICommons\Keys\PrivateKeyManager.cs" Link="Keys\PrivateKeyManager.cs" />
     <Compile Include="..\..\dotnetframework\SecurityAPICommons\Keys\SymmetricKeyGenerator.cs" Link="Keys\SymmetricKeyGenerator.cs" />
     <Compile Include="..\..\dotnetframework\SecurityAPICommons\Keys\SymmetricKeyType.cs" Link="Keys\SymmetricKeyType.cs" />
+    <Compile Include="..\..\dotnetframework\SecurityAPICommons\Utils\ExtensionsWhiteList.cs" Link="Utils\ExtensionsWhiteList.cs" />
     <Compile Include="..\..\dotnetframework\SecurityAPICommons\Utils\SecurityUtils.cs" Link="Utils\SecurityUtils.cs" />
   </ItemGroup>
 

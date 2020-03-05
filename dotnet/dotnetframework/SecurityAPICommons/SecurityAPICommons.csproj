@@ -59,6 +59,7 @@
     <Compile Include="Keys\SymmetricKeyGenerator.cs" />
     <Compile Include="Keys\SymmetricKeyType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\ExtensionsWhiteList.cs" />
     <Compile Include="Utils\SecurityUtils.cs" />
   </ItemGroup>
   <ItemGroup>
