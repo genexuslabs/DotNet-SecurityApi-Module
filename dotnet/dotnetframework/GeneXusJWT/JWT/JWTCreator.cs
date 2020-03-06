@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security;
 using System.Security.Cryptography;
+using Microsoft.IdentityModel.Logging;
 
 namespace GeneXusJWT.GenexusJWT
 {
@@ -29,7 +30,7 @@ namespace GeneXusJWT.GenexusJWT
             EncodingUtil eu = new EncodingUtil();
             eu.setEncoding("UTF8");
             /***Config to Debug - Delete on Release version!!!***/
-            // Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
+            //Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
         }
 
         /******** EXTERNAL OBJECT PUBLIC METHODS - BEGIN ********/
@@ -51,9 +52,9 @@ namespace GeneXusJWT.GenexusJWT
                 return "";
             }
             /***Hack to support 1024 RSA key lengths - BEGIN***/
-            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForSigningMap["http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"] = 1024;
-            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForSigningMap["http://www.w3.org/2001/04/xmldsig-more#rsa-sha512"] = 1024;
-            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForSigningMap["http://www.w3.org/2001/04/xmldsig-more#rsa-sha384"] = 1024;
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForSigningMap["RS256"] = 1024;
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForSigningMap["RS512"] = 1024;
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForSigningMap["RS384"] = 1024;     
             /***Hack to support 1024 RSA key lengths - END***/
 
             JwtPayload payload = doBuildPayload(privateClaims, options);
@@ -88,13 +89,14 @@ namespace GeneXusJWT.GenexusJWT
             try
             {
                 JwtHeader header = new JwtHeader(signingCredentials);
-
+                
                 JwtSecurityToken secToken = new JwtSecurityToken(header, payload);
                 JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
                 signedJwt = handler.WriteToken(secToken);
             }
             catch (Exception e)
             {
+                
                 this.error.setError("JW003", e.Message+ e.StackTrace);
 
                 return "";
@@ -114,14 +116,18 @@ namespace GeneXusJWT.GenexusJWT
 
 
             /***Hack to support 1024 RSA key lengths - BEGIN***/
-            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"] = 1024;
-            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["http://www.w3.org/2001/04/xmldsig-more#rsa-sha512"] = 1024;
-            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["http://www.w3.org/2001/04/xmldsig-more#rsa-sha384"] = 1024;
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["RS256"] = 1024;
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["RS512"] = 1024;
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["RS384"] = 1024;
             /***Hack to support 1024 RSA key lengths - END***/
 
 
             JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
             JwtSecurityToken jwtToken = new JwtSecurityToken(token);
+            bool regclaims = validateRegisteredClaims(jwtToken, options);
+            bool reviqued = !isRevoqued(jwtToken, options);
+            bool privClaims = verifyPrivateClaims(jwtToken, privateClaims);
+
             if (validateRegisteredClaims(jwtToken, options) && !isRevoqued(jwtToken, options) && verifyPrivateClaims(jwtToken, privateClaims))
             {//if validates all registered claims and it is not on revocation list
                 TokenValidationParameters parms = new TokenValidationParameters();

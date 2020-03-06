@@ -56,9 +56,9 @@ namespace GeneXusJWT.GenexusJWTUtils
         {
             switch (jWTAlgorithm)
             {
-                case SecurityAlgorithms.RsaSha256Signature:
+                case SecurityAlgorithms.RsaSha256:
                     return JWTAlgorithm.RS256;
-                case SecurityAlgorithms.RsaSha512Signature:
+                case SecurityAlgorithms.RsaSha512:
                     return JWTAlgorithm.RS512;
                 case SecurityAlgorithms.HmacSha256:
                     return JWTAlgorithm.HS256;
@@ -92,9 +92,9 @@ namespace GeneXusJWT.GenexusJWTUtils
                 case JWTAlgorithm.HS512:
                     return new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
                 case JWTAlgorithm.RS256:
-                    return new SigningCredentials(key, SecurityAlgorithms.RsaSha256Signature, SecurityAlgorithms.Sha256);
+                    return new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
                 case JWTAlgorithm.RS512:
-                    return new SigningCredentials(key, SecurityAlgorithms.RsaSha512Signature, SecurityAlgorithms.Sha512);
+                    return new SigningCredentials(key, SecurityAlgorithms.RsaSha512);
                 default:
                     error.setError("JA003", "Unknown algorithm");
                     return null;
