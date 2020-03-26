@@ -33,7 +33,7 @@ namespace SecurityAPICommons.Utils
 				return false;
 			}
 			string ext = SecurityUtils.getFileExtension(path);
-			for (int i = 0; i <= this.whitelist.Count; i++)
+			for (int i = 0; i < this.whitelist.Count; i++)
 			{
 				if (SecurityUtils.compareStrings(ext, this.whitelist.ElementAt(i)))
 				{
