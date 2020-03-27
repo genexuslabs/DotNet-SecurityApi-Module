@@ -145,7 +145,7 @@ namespace GeneXusFtps.GeneXusFtps
                 
                 if (!isStored)
                 {
-                    this.error.setError("FS012", " Reply String: " + this.client.LastReply);
+                    this.error.setError("FS012", " Reply String: " + this.client.LastReply.ErrorMessage);
                 }
             }
             catch (Exception e1)
@@ -302,10 +302,10 @@ namespace GeneXusFtps.GeneXusFtps
                 case FtpsProtocol.TLS1_2:
                     return SslProtocols.Tls12;
                 case FtpsProtocol.SSLv2:
-                    this.error.setError("FS0014", "Deprecated protocol, not implemented for .NetCore");
+                    this.error.setError("FS0014", "Deprecated protocol, not implemented for .Net");
                     return SslProtocols.None;
                 case FtpsProtocol.SSLv3:
-                    this.error.setError("FS0015", "Deprecated protocol, not implemented for .NetCore");
+                    this.error.setError("FS0015", "Deprecated protocol, not implemented for .Net");
                     return SslProtocols.None;
                 default:
                     return SslProtocols.Tls;
