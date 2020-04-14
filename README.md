@@ -12,7 +12,7 @@ These are the source of the GeneXus Security API.
 | GeneXusXmlSignature | GeneXus Xml Signature Module, output is GeneXusXmlSignatureImpl.dll
 | GeneXusJWT | GeneXus Json Web Token Module, output is GeneXusJWTImpl.dll
 | GeneXusSftp | GeneXus SFTP Module, output is GeneXusSftpClientImpl.dll
-| GeneXusFtps | GeneXus FTPS Module, output is GeneXusFtpsImpl.dll (under development)
+| GeneXusFtps | GeneXus FTPS Module, output is GeneXusFtpsImpl.dll (available since GeneXus 16 Upgrade 9)
 
 ### .NET Core
 
@@ -23,7 +23,7 @@ These are the source of the GeneXus Security API.
 | GeneXusXmlSignature | GeneXus Xml Signature Module, output is GeneXusXmlSignatureNetCoreImpl.dll
 | GeneXusJWT | GeneXus Json Web Token Module, output is GeneXusJWTNetCoreImpl.dll
 | GeneXusSftp | GeneXus SFTP Module, output is GeneXusSftpNetCoreImpl.dll
-| GeneXusFtps | GeneXus FTPS Module, output is GeneXusFtpsNetCoreImpl.dll
+| GeneXusFtps | GeneXus FTPS Module, output is GeneXusFtpsNetCoreImpl.dll (available since GeneXus 16 Upgrade 9)
 
 # How to compile
 
