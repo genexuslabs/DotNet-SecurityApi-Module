@@ -15,7 +15,7 @@ namespace GeneXusCryptography.PasswordDerivation
     public enum PasswordDerivationAlgorithm
     {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        NONE, SCrypt, Bcrypt
+        NONE, SCrypt, Bcrypt, Argon2
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
     /// <summary>
@@ -38,6 +38,8 @@ namespace GeneXusCryptography.PasswordDerivation
                     return PasswordDerivationAlgorithm.SCrypt;
                 case "Bcrypt":
                     return PasswordDerivationAlgorithm.Bcrypt;
+                case "Argon2":
+                    return PasswordDerivationAlgorithm.Argon2;
                 default:
                     error.setError("PD001", "Unrecognized PasswordDerivationAlgorithm");
                     return PasswordDerivationAlgorithm.NONE;
@@ -57,6 +59,8 @@ namespace GeneXusCryptography.PasswordDerivation
                     return "SCrypt";
                 case PasswordDerivationAlgorithm.Bcrypt:
                     return "Bcrypt";
+                case PasswordDerivationAlgorithm.Argon2:
+                    return "Argon2";
                 default:
                     error.setError("PD002", "Unrecognized PasswordDerivationAlgorithm");
                     return "Unrecognized algorithm";

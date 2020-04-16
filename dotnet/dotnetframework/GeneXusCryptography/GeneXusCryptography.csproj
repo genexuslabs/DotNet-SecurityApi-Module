@@ -73,13 +73,14 @@
     <Compile Include="Symmetric\SymmetricStreamCipher.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\SecurityAPICommons\SecurityAPICommons.csproj">
       <Project>{be9a040c-de9a-490a-b02c-9e1d97b30b21}</Project>
       <Name>SecurityAPICommons</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
