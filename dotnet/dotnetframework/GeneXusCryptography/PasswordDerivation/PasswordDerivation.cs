@@ -129,6 +129,7 @@ namespace GeneXusCryptography.PasswordDerivation
             return "";
         }
 
+        [SecuritySafeCritical]
         public string DoGenerateArgon2(string argon2Version10, string argon2HashType, int iterations, int memory,
         int parallelism, String password, string salt, int hashLength)
         {
