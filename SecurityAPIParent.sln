@@ -51,9 +51,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneXusFtps", "dotnet\dotne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneXusFtpsConsoleTest", "test\dotnetframework\GeneXusFtpsConsoleTest\GeneXusFtpsConsoleTest.csproj", "{7A1CB119-B1F0-41EB-9DE3-E4814B020483}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneXusFtpsNetCore", "dotnet\dotnetcore\GeneXusFtpsNetCore\GeneXusFtpsNetCore.csproj", "{06054CD3-91A7-4A0A-AA5C-A70B64CF4755}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeneXusFtpsNetCore", "dotnet\dotnetcore\GeneXusFtpsNetCore\GeneXusFtpsNetCore.csproj", "{06054CD3-91A7-4A0A-AA5C-A70B64CF4755}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneXusFtpsNetCoreConsoleTest", "test\dotnetcore\GeneXusFtpsNetCoreConsoleTest\GeneXusFtpsNetCoreConsoleTest.csproj", "{15722D18-7735-4D7C-BA97-A51F9FFE5BC7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeneXusFtpsNetCoreConsoleTest", "test\dotnetcore\GeneXusFtpsNetCoreConsoleTest\GeneXusFtpsNetCoreConsoleTest.csproj", "{15722D18-7735-4D7C-BA97-A51F9FFE5BC7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

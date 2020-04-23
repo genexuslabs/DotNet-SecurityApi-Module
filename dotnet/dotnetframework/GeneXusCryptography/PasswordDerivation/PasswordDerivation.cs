@@ -9,7 +9,6 @@ using Org.BouncyCastle.Utilities.Encoders;
 using System;
 using System.Security;
 
-
 namespace GeneXusCryptography.PasswordDerivation
 {
     /// <summary>
@@ -122,6 +121,21 @@ namespace GeneXusCryptography.PasswordDerivation
             return DoGenerateBcrypt(password, salt, cost);
         }
 
+        [SecuritySafeCritical]
+        public string doGenerateArgon2(string argon2Version10, string argon2HashType, int iterations, int memory,
+        int parallelism, string password, string salt, int hashLength)
+        {
+            this.error.setError("PD011", "Not implemented function for Net");
+            return "";
+        }
+
+        [SecuritySafeCritical]
+        public string DoGenerateArgon2(string argon2Version10, string argon2HashType, int iterations, int memory,
+        int parallelism, String password, string salt, int hashLength)
+        {
+            this.error.setError("PD012", "Not implemented yet");
+            return "";
+        }
 
         /********EXTERNAL OBJECT PUBLIC METHODS  - END ********/
 
