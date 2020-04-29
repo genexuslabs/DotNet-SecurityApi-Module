@@ -35,7 +35,7 @@ Visual Studio 2019 or dotnet SDK >= 3.1
 # Instructions
 
 ## How to build all projects?
-- ```dotnet build DotNetStandardClasses.sln```
+- ```dotnet build SecurityAPIParent.sln```
 
 
 ## How to build a specific project?
