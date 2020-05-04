@@ -9,7 +9,6 @@ using Org.BouncyCastle.Utilities.Encoders;
 using System;
 using System.Security;
 
-
 namespace GeneXusCryptography.PasswordDerivation
 {
     /// <summary>
@@ -54,7 +53,7 @@ namespace GeneXusCryptography.PasswordDerivation
             }
             EncodingUtil eu = new EncodingUtil();
 
-            byte[] encryptedBytes = SCrypt.Generate(eu.getBytes(password), eu.getBytes(salt), CPUCost, blockSize, parallelization, keyLenght);
+            byte[] encryptedBytes = SCrypt.Generate(eu.getBytes(password), Hex.Decode(salt), CPUCost, blockSize, parallelization, keyLenght);
             string result = Base64.ToBase64String(encryptedBytes);
             if (result == null || result.Length == 0)
             {
@@ -97,8 +96,7 @@ namespace GeneXusCryptography.PasswordDerivation
                 return "";
             }
             EncodingUtil eu = new EncodingUtil();
-            HexaEncoder hexa = new HexaEncoder();
-            byte[] encryptedBytes = BCrypt.Generate(eu.getBytes(password), Strings.ToByteArray(hexa.fromHexa(salt)), cost);
+            byte[] encryptedBytes = BCrypt.Generate(eu.getBytes(password), Hex.Decode(salt), cost);
             string result = Base64.ToBase64String(encryptedBytes);
             if (result == null || result.Length == 0)
             {
@@ -122,7 +120,6 @@ namespace GeneXusCryptography.PasswordDerivation
             return DoGenerateBcrypt(password, salt, cost);
         }
 
-
         /********EXTERNAL OBJECT PUBLIC METHODS  - END ********/
 
 
@@ -137,9 +134,8 @@ namespace GeneXusCryptography.PasswordDerivation
         private bool areBCryptValidParameters(string pwd, string salt, int cost)
         {
             EncodingUtil eu = new EncodingUtil();
-            HexaEncoder hexa = new HexaEncoder();
             byte[] pwdBytes = eu.getBytes(pwd);
-            byte[] saltBytes = Strings.ToByteArray(hexa.fromHexa(salt));
+            byte[] saltBytes = Hex.Decode(salt);
             if (saltBytes.Length * 8 != 128)
             {
                 this.error.setError("PD008", "The salt lenght must be 128 bits");
