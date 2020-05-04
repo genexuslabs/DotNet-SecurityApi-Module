@@ -34,8 +34,14 @@ namespace SecurityAPICommons.Encoders
         [SecuritySafeCritical]
         public string toHexa(string plainText)
         {
-            byte[] digest = new EncodingUtil().getBytes(plainText);
-            string result = BitConverter.ToString(digest).Replace("-", string.Empty);
+            EncodingUtil eu = new EncodingUtil();
+            byte[] stringBytes = eu.getBytes(plainText);
+            if (eu.HasError())
+            {
+                this.error = eu.GetError();
+                return "";
+            }
+            string result = BitConverter.ToString(stringBytes).Replace("-", string.Empty);
             if (result == null || result.Length == 0)
             {
                 this.error.setError("HE001", "Error encoding hexa");
@@ -54,7 +60,16 @@ namespace SecurityAPICommons.Encoders
         public string fromHexa(string stringHexa)
         {
             byte[] stringBytes = Hex.Decode(stringHexa);
-            string result = Strings.FromByteArray(stringBytes);
+
+            //string result = Strings.FromByteArray(stringBytes);
+
+            EncodingUtil eu = new EncodingUtil();
+            String result = eu.getString(stringBytes);
+            if (eu.HasError())
+            {
+                this.error = eu.GetError();
+                return "";
+            }
             if (result == null || result.Length == 0)
             {
                 this.error.setError("HE002", "Error decoding hexa");
