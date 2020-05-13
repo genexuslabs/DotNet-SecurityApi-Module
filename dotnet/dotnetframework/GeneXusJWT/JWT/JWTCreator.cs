@@ -7,18 +7,16 @@ using SecurityAPICommons.Config;
 using SecurityAPICommons.Keys;
 using SecurityAPICommons.Utils;
 using Microsoft.IdentityModel.Tokens;
-using Org.BouncyCastle.Utilities.Encoders;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security;
 using System.Security.Cryptography;
-using Microsoft.IdentityModel.Logging;
 
 namespace GeneXusJWT.GenexusJWT
 {
     [SecuritySafeCritical]
-    public class JWTCreator : SecurityAPIObject
+    public class JWTCreator : SecurityAPIObject, IJWTObject
     {
 
 
@@ -106,14 +104,18 @@ namespace GeneXusJWT.GenexusJWT
         }
 
         [SecuritySafeCritical]
-        public bool DoVerify(string token, PrivateClaims privateClaims,  JWTOptions options)
+        public bool DoVerify(string token, string expectedAlgorithm, PrivateClaims privateClaims,  JWTOptions options)
         {
             if (options.HasError())
             {
                 this.error = options.GetError();
                 return false;
             }
-
+            JWTAlgorithm expectedJWTAlgorithm = JWTAlgorithmUtils.getJWTAlgorithm(expectedAlgorithm, this.error);
+            if(this.HasError())
+            {
+                return false;
+            }
 
             /***Hack to support 1024 RSA key lengths - BEGIN***/
             AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["RS256"] = 1024;
@@ -138,6 +140,11 @@ namespace GeneXusJWT.GenexusJWT
                 JWTAlgorithm alg = JWTAlgorithmUtils.getJWTAlgorithm_forVerification(jwtToken.Header.Alg, this.error);
                 if (this.HasError())
                 {
+                    return false;
+                }
+                if(JWTAlgorithmUtils.getJWTAlgorithm(jwtToken.Header.Alg, this.error) != expectedJWTAlgorithm || this.HasError())
+                {
+                    this.error.setError("JW008", "Expected algorithm does not match token algorithm");
                     return false;
                 }
                 SecurityKey genericKey = null;
@@ -181,7 +188,7 @@ namespace GeneXusJWT.GenexusJWT
         }
 
         [SecuritySafeCritical]
-        public string getPayload(string token)
+        public string GetPayload(string token)
         {
 
             return getTokenPart(token, "payload");
@@ -189,13 +196,13 @@ namespace GeneXusJWT.GenexusJWT
         }
 
         [SecuritySafeCritical]
-        public string getHeader(string token)
+        public string GetHeader(string token)
         {
             return getTokenPart(token, "header");
         }
 
         [SecuritySafeCritical]
-        public string getTokenID(string token)
+        public string GetTokenID(string token)
         {
             return getTokenPart(token, "id");
         }

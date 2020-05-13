@@ -13,7 +13,7 @@
   <ItemGroup>
     <Compile Include="..\..\dotnetframework\GeneXusJWT\Commons\DateUtilObject.cs" Link="Commons\DateUtilObject.cs" />
     <Compile Include="..\..\dotnetframework\GeneXusJWT\Commons\GUIDObject.cs" Link="Commons\GUIDObject.cs" />
-    <Compile Include="..\..\dotnetframework\GeneXusJWT\Commons\JWTObject.cs" Link="Commons\JWTObject.cs" />
+    <Compile Include="..\..\dotnetframework\GeneXusJWT\Commons\IJWTObject.cs" Link="Commons\IJWTObject.cs" />
     <Compile Include="..\..\dotnetframework\GeneXusJWT\Commons\JWTOptions.cs" Link="Commons\JWTOptions.cs" />
     <Compile Include="..\..\dotnetframework\GeneXusJWT\JWTClaims\Claim.cs" Link="JWTClaims\Claim.cs" />
     <Compile Include="..\..\dotnetframework\GeneXusJWT\JWTClaims\Claims.cs" Link="JWTClaims\Claims.cs" />
