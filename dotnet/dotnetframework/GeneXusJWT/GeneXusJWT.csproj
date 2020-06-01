@@ -64,7 +64,7 @@
   <ItemGroup>
     <Compile Include="Commons\DateUtilObject.cs" />
     <Compile Include="Commons\GUIDObject.cs" />
-    <Compile Include="Commons\JWTObject.cs" />
+    <Compile Include="Commons\IJWTObject.cs" />
     <Compile Include="Commons\JWTOptions.cs" />
     <Compile Include="JWTClaims\Claim.cs" />
     <Compile Include="JWTClaims\Claims.cs" />
