@@ -81,7 +81,15 @@ namespace SecurityAPICommons.Keys
                 byte[] serializedPrivateBytes = this.privateKeyInfo.ToAsn1Object().GetDerEncoded();
                 string serializedPrivate = Convert.ToBase64String(serializedPrivateBytes);
                 RsaPrivateCrtKeyParameters privateKey = (RsaPrivateCrtKeyParameters)PrivateKeyFactory.CreateKey(Convert.FromBase64String(serializedPrivate));
-                return DotNetUtilities.ToRSA(privateKey);
+                /****System.Security.Cryptography.CryptographicException: The system cannot find the file specified.****/
+                /****HACK****/
+                //https://social.msdn.microsoft.com/Forums/vstudio/en-US/7ea48fd0-8d6b-43ed-b272-1a0249ae490f/systemsecuritycryptographycryptographicexception-the-system-cannot-find-the-file-specified?forum=clr#37d4d83d-0eb3-497a-af31-030f5278781a
+                CspParameters cspParameters = new CspParameters();
+                cspParameters.Flags = CspProviderFlags.UseMachineKeyStore;
+                cspParameters.KeyContainerName = "MyKeyContainerName";
+                return DotNetUtilities.ToRSA(privateKey, cspParameters);
+                /****System.Security.Cryptography.CryptographicException: The system cannot find the file specified.****/
+                /****HACK****/
 
 
             }
