@@ -25,6 +25,19 @@ These are the source of the GeneXus Security API.
 | GeneXusSftp | GeneXus SFTP Module, output is GeneXusSftpNetCoreImpl.dll
 | GeneXusFtps | GeneXus FTPS Module, output is GeneXusFtpsNetCoreImpl.dll (available since GeneXus 16 Upgrade 9)
 
+## Repository Layout
+
+This repository contains projects for .NET and .NET Core. It is organized as follows:
+
+```
+.
+├── README.md (this file)
+├── SecurityAPIParent.sln (solution to build all the projects)
+├── dotnet/ 
+    ├── dotnetcore/ (.NET Core projects, several of these projects link sources from dotnetframework)
+    └── dotnetframework/ (.NET projects)
+```
+
 # How to compile
 
 ## Requirements
