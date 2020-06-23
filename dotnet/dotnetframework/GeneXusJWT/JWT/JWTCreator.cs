@@ -1,5 +1,4 @@
-﻿
-using GeneXusJWT.GenexusComons;
+﻿using GeneXusJWT.GenexusComons;
 using GeneXusJWT.GenexusJWTClaims;
 using GeneXusJWT.GenexusJWTUtils;
 using SecurityAPICommons.Commons;
@@ -12,12 +11,15 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security;
 using System.Security.Cryptography;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace GeneXusJWT.GenexusJWT
 {
     [SecuritySafeCritical]
     public class JWTCreator : SecurityAPIObject, IJWTObject
     {
+        private int counter;
 
 
         [SecuritySafeCritical]
@@ -27,6 +29,7 @@ namespace GeneXusJWT.GenexusJWT
 
             EncodingUtil eu = new EncodingUtil();
             eu.setEncoding("UTF8");
+            this.counter = 0;
             /***Config to Debug - Delete on Release version!!!***/
             //Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
         }
@@ -126,11 +129,8 @@ namespace GeneXusJWT.GenexusJWT
 
             JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
             JwtSecurityToken jwtToken = new JwtSecurityToken(token);
-            bool regclaims = validateRegisteredClaims(jwtToken, options);
-            bool reviqued = !isRevoqued(jwtToken, options);
-            bool privClaims = verifyPrivateClaims(jwtToken, privateClaims);
 
-            if (validateRegisteredClaims(jwtToken, options) && !isRevoqued(jwtToken, options) && verifyPrivateClaims(jwtToken, privateClaims))
+            if (validateRegisteredClaims(jwtToken, options) && !isRevoqued(jwtToken, options) && verifyPrivateClaims(jwtToken, privateClaims, options))
             {//if validates all registered claims and it is not on revocation list
                 TokenValidationParameters parms = new TokenValidationParameters();
                 parms.ValidateLifetime = false;
@@ -218,8 +218,19 @@ namespace GeneXusJWT.GenexusJWT
             List<Claim> privateC = privateClaims.getAllClaims();
             foreach (Claim privateClaim in privateC)
             {
-                System.Security.Claims.Claim netPrivateClaim = new System.Security.Claims.Claim(privateClaim.getKey(), privateClaim.getValue());
-                payload.AddClaim(netPrivateClaim);
+
+                if (privateClaim.getNestedClaims() != null)
+                {
+
+                    payload.Add(privateClaim.getKey(), privateClaim.getNestedClaims().getNestedMap());
+                }
+                else
+                {
+                    System.Security.Claims.Claim netPrivateClaim = new System.Security.Claims.Claim(privateClaim.getKey(), privateClaim.getValue());
+
+                    payload.AddClaim(netPrivateClaim);
+                }
+
             }
             // Adding public claims
             if (options.hasPublicClaims())
@@ -247,6 +258,7 @@ namespace GeneXusJWT.GenexusJWT
             // ****END BUILD PAYLOAD****//
             return payload;
         }
+
 
         private bool validateRegisteredClaims(JwtSecurityToken jwtToken, JWTOptions options)
         {
@@ -319,31 +331,126 @@ namespace GeneXusJWT.GenexusJWT
 
         }
 
-        private bool verifyPrivateClaims(JwtSecurityToken jwtToken, PrivateClaims privateClaims)
+        private bool verifyPrivateClaims(JwtSecurityToken jwtToken, PrivateClaims privateClaims, JWTOptions options)
         {
+            RegisteredClaims registeredClaims = options.getAllRegisteredClaims();
+            PublicClaims publicClaims = options.getAllPublicClaims();
             if (privateClaims == null || privateClaims.isEmpty())
             {
                 return true;
             }
-
-            JwtPayload map = jwtToken.Payload;
-
-            List<Claim> claims = privateClaims.getAllClaims();
-            for (int i = 0; i < claims.Count; i++)
+            string jsonPayload = jwtToken.Payload.SerializeToJson();
+            Dictionary<string, object> map = null;
+            try
             {
-                Claim c = claims[i];
-                if (!map.ContainsKey(c.getKey()))
-                {
-                    return false;
-                }
+                map = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonPayload);
+            }
+            catch (Exception)
+            {
+                this.error.setError("JW009", "Cannot parse JWT payload");
+                return false;
+            }
+            this.counter = 0;
+            bool validation = verifyNestedClaims(privateClaims.getNestedMap(), map, registeredClaims, publicClaims);
+            int pClaimsCount = countingPrivateClaims(privateClaims.getNestedMap(), 0);
+            if (validation && !(this.counter == pClaimsCount))
+            {
+                return false;
+            }
+            return validation;
+        }
 
-                string claim =(System.String)map[c.getKey()];
-                if (!SecurityUtils.compareStrings(claim.Trim(), c.getValue().Trim()))
+        private bool verifyNestedClaims(Dictionary<string, object> pclaimMap, Dictionary<string, object> map,
+                    RegisteredClaims registeredClaims, PublicClaims publicClaims)
+        {
+            List<string> mapClaimKeyList = new List<string>(map.Keys);
+            List<string> pClaimKeyList = new List<string>(pclaimMap.Keys);
+            if (pClaimKeyList.Count > pClaimKeyList.Count)
+            {
+                return false;
+            }
+            foreach (String mapKey in mapClaimKeyList)
+            {
+
+                if (!isRegistered(mapKey, registeredClaims) && !isPublic(mapKey, publicClaims))
                 {
-                    return false;
+                    this.counter++;
+                    if (!pclaimMap.ContainsKey(mapKey))
+                    {
+                        return false;
+                    }
+
+                    object op = pclaimMap[mapKey];
+                    object ot = map[mapKey];
+
+                    if ((op.GetType() == typeof(string)) && (ot.GetType() == typeof(string)))
+                    {
+
+                        if (!SecurityUtils.compareStrings(((string)op).Trim(), ((string)ot).Trim()))
+                        {
+                            return false;
+                        }
+                    }
+                    else if ((op.GetType() == typeof(Dictionary<string, object>)) && (ot.GetType() == typeof(JObject)))
+                    {
+
+
+                        bool flag = verifyNestedClaims((Dictionary<string, object>)op, ((JObject)ot).ToObject<Dictionary<string, object>>(),
+                                registeredClaims, publicClaims);
+                        if (!flag)
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
             }
             return true;
+        }
+
+        private bool isRegistered(string claimKey, RegisteredClaims registeredClaims)
+        {
+
+            List<Claim> registeredClaimsList = registeredClaims.getAllClaims();
+            foreach (Claim s in registeredClaimsList)
+            {
+                if (SecurityUtils.compareStrings(s.getKey().Trim(), claimKey.Trim()))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool isPublic(string claimKey, PublicClaims publicClaims)
+        {
+            List<Claim> publicClaimsList = publicClaims.getAllClaims();
+            foreach (Claim s in publicClaimsList)
+            {
+                if (SecurityUtils.compareStrings(s.getKey().Trim(), claimKey.Trim()))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private int countingPrivateClaims(Dictionary<string, object> map, int counter)
+        {
+            List<string> list = new List<string>(map.Keys);
+            foreach (string s in list)
+            {
+                counter++;
+                object obj = map[s];
+                if (obj.GetType() == typeof(Dictionary<string, object>))
+                {
+                    counter = countingPrivateClaims((Dictionary<string, object>)obj, counter);
+                }
+            }
+            return counter;
         }
     }
 }

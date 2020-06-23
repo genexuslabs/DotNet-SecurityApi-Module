@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Security;
+﻿using System.Security;
 
 namespace GeneXusJWT.GenexusJWTClaims
 {
@@ -12,10 +7,10 @@ namespace GeneXusJWT.GenexusJWTClaims
     {
 
         private string key;
-        private string value;
+        private object value;
 
         [SecuritySafeCritical]
-        public Claim(string valueKey, string valueOfValue)
+        public Claim(string valueKey, object valueOfValue)
         {
             key = valueKey;
             value = valueOfValue;
@@ -24,13 +19,31 @@ namespace GeneXusJWT.GenexusJWTClaims
         [SecuritySafeCritical]
         public string getValue()
         {
-            return value;
+            if (value.GetType() == typeof(string))
+            {
+                return (string)value;
+            }
+            else { return null; }
+
         }
 
         [SecuritySafeCritical]
         public string getKey()
         {
             return key;
+        }
+
+        [SecuritySafeCritical]
+        public PrivateClaims getNestedClaims()
+        {
+            if (value.GetType() == typeof(PrivateClaims))
+            {
+                return (PrivateClaims)value;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

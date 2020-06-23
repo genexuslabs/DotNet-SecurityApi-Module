@@ -1,8 +1,6 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Security;
-using GenexusJWT.GenexusJWTUtils;
 using SecurityAPICommons.Commons;
 using SecurityAPICommons.Utils;
 
@@ -21,7 +19,7 @@ namespace GeneXusJWT.GenexusJWTClaims
         }
 
         [SecuritySafeCritical]
-        public bool setClaim(string key, string value, Error error)
+        public bool setClaim(string key, object value, Error error)
         {
             Claim claim = new Claim(key, value);
             _claims.Add(claim);
