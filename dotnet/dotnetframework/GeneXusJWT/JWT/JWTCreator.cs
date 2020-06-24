@@ -1,4 +1,5 @@
-﻿using GeneXusJWT.GenexusComons;
+﻿
+using GeneXusJWT.GenexusComons;
 using GeneXusJWT.GenexusJWTClaims;
 using GeneXusJWT.GenexusJWTUtils;
 using SecurityAPICommons.Commons;
@@ -13,6 +14,7 @@ using System.Security;
 using System.Security.Cryptography;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using GeneXusJWT.JWTClaims;
 
 namespace GeneXusJWT.GenexusJWT
 {
@@ -55,7 +57,7 @@ namespace GeneXusJWT.GenexusJWT
             /***Hack to support 1024 RSA key lengths - BEGIN***/
             AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForSigningMap["RS256"] = 1024;
             AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForSigningMap["RS512"] = 1024;
-            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForSigningMap["RS384"] = 1024;     
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForSigningMap["RS384"] = 1024;
             /***Hack to support 1024 RSA key lengths - END***/
 
             JwtPayload payload = doBuildPayload(privateClaims, options);
@@ -90,15 +92,19 @@ namespace GeneXusJWT.GenexusJWT
             try
             {
                 JwtHeader header = new JwtHeader(signingCredentials);
-                
+                if (!options.GetHeaderParameters().IsEmpty())
+                {
+                    AddHeaderParameters(header, options);
+                }
+
                 JwtSecurityToken secToken = new JwtSecurityToken(header, payload);
                 JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
                 signedJwt = handler.WriteToken(secToken);
             }
             catch (Exception e)
             {
-                
-                this.error.setError("JW003", e.Message+ e.StackTrace);
+
+                this.error.setError("JW003", e.Message + e.StackTrace);
 
                 return "";
             }
@@ -107,7 +113,7 @@ namespace GeneXusJWT.GenexusJWT
         }
 
         [SecuritySafeCritical]
-        public bool DoVerify(string token, string expectedAlgorithm, PrivateClaims privateClaims,  JWTOptions options)
+        public bool DoVerify(string token, string expectedAlgorithm, PrivateClaims privateClaims, JWTOptions options)
         {
             if (options.HasError())
             {
@@ -115,7 +121,7 @@ namespace GeneXusJWT.GenexusJWT
                 return false;
             }
             JWTAlgorithm expectedJWTAlgorithm = JWTAlgorithmUtils.getJWTAlgorithm(expectedAlgorithm, this.error);
-            if(this.HasError())
+            if (this.HasError())
             {
                 return false;
             }
@@ -130,7 +136,7 @@ namespace GeneXusJWT.GenexusJWT
             JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
             JwtSecurityToken jwtToken = new JwtSecurityToken(token);
 
-            if (validateRegisteredClaims(jwtToken, options) && !isRevoqued(jwtToken, options) && verifyPrivateClaims(jwtToken, privateClaims, options))
+            if (validateRegisteredClaims(jwtToken, options) && !isRevoqued(jwtToken, options) && verifyPrivateClaims(jwtToken, privateClaims, options) && VerifyHeader(jwtToken, options))
             {//if validates all registered claims and it is not on revocation list
                 TokenValidationParameters parms = new TokenValidationParameters();
                 parms.ValidateLifetime = false;
@@ -142,7 +148,7 @@ namespace GeneXusJWT.GenexusJWT
                 {
                     return false;
                 }
-                if(JWTAlgorithmUtils.getJWTAlgorithm(jwtToken.Header.Alg, this.error) != expectedJWTAlgorithm || this.HasError())
+                if (JWTAlgorithmUtils.getJWTAlgorithm(jwtToken.Header.Alg, this.error) != expectedJWTAlgorithm || this.HasError())
                 {
                     this.error.setError("JW008", "Expected algorithm does not match token algorithm");
                     return false;
@@ -258,7 +264,6 @@ namespace GeneXusJWT.GenexusJWT
             // ****END BUILD PAYLOAD****//
             return payload;
         }
-
 
         private bool validateRegisteredClaims(JwtSecurityToken jwtToken, JWTOptions options)
         {
@@ -411,6 +416,61 @@ namespace GeneXusJWT.GenexusJWT
             return true;
         }
 
+        private void AddHeaderParameters(JwtHeader header, JWTOptions options)
+        {
+            HeaderParameters parameters = options.GetHeaderParameters();
+            List<string> list = parameters.GetAll();
+            Dictionary<string, object> map = parameters.GetMap();
+            foreach (string s in list)
+            {
+                header.Add(s.Trim(), ((string)map[s]).Trim());
+            }
+        }
+
+        private bool VerifyHeader(JwtSecurityToken jwtToken, JWTOptions options)
+        {
+            HeaderParameters parameters = options.GetHeaderParameters();
+            if (parameters.IsEmpty())
+            {
+                return true;
+            }
+
+            List<String> allParms = parameters.GetAll();
+            if (jwtToken.Header.Count != allParms.Count + 2)
+            {
+                return false;
+            }
+            Dictionary<String, Object> map = parameters.GetMap();
+
+
+            foreach (string s in allParms)
+            {
+
+                if (!jwtToken.Header.ContainsKey(s.Trim()))
+                {
+                    return false;
+                }
+
+
+                string claimValue = null;
+                try
+                {
+                    claimValue = (string)jwtToken.Header[s.Trim()];
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+                String optionsValue = ((string)map[s]).Trim();
+                if (!SecurityUtils.compareStrings(claimValue, optionsValue.Trim()))
+                {
+                    return false;
+                }
+            }
+            return true;
+
+        }
+
         private bool isRegistered(string claimKey, RegisteredClaims registeredClaims)
         {
 
@@ -454,3 +514,5 @@ namespace GeneXusJWT.GenexusJWT
         }
     }
 }
+
+

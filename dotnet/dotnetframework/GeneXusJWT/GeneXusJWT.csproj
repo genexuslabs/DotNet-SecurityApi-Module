@@ -68,6 +68,7 @@
     <Compile Include="Commons\JWTOptions.cs" />
     <Compile Include="JWTClaims\Claim.cs" />
     <Compile Include="JWTClaims\Claims.cs" />
+    <Compile Include="JWTClaims\HeaderParameters.cs" />
     <Compile Include="JWTClaims\PrivateClaims.cs" />
     <Compile Include="JWTClaims\PublicClaims.cs" />
     <Compile Include="JWTClaims\RegisteredClaim.cs" />
