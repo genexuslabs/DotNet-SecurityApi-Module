@@ -5,6 +5,7 @@ using SecurityAPICommons.Keys;
 using Org.BouncyCastle.Utilities.Encoders;
 using System;
 using System.Security;
+using GeneXusJWT.JWTClaims;
 
 namespace GeneXusJWT.GenexusComons
 {
@@ -18,6 +19,7 @@ namespace GeneXusJWT.GenexusComons
         private RevocationList revocationList;
         private CertificateX509 certificate;
         private PrivateKeyManager privateKey;
+        private HeaderParameters parameters;
 
         [SecuritySafeCritical]
         public JWTOptions() : base()
@@ -25,6 +27,7 @@ namespace GeneXusJWT.GenexusComons
             this.publicClaims = new PublicClaims();
             this.registeredClaims = new RegisteredClaims();
             this.revocationList = new RevocationList();
+            this.parameters = new HeaderParameters();
 
         }
 
@@ -108,6 +111,14 @@ namespace GeneXusJWT.GenexusComons
             this.revocationList = new RevocationList();
         }
 
+        [SecuritySafeCritical]
+        public void AddHeaderParameter(string name, string value)
+        {
+            this.parameters.SetParameter(name, value);
+        }
+
+
+
         /******** EXTERNAL OBJECT PUBLIC METHODS - END ********/
         public bool hasPublicClaims()
         {
@@ -149,6 +160,13 @@ namespace GeneXusJWT.GenexusComons
         {
             return this.revocationList;
         }
+
+        public HeaderParameters GetHeaderParameters()
+        {
+            return this.parameters;
+        }
+
+
 
     }
 }
