@@ -213,11 +213,11 @@ namespace SecurityAPICommons.Keys
         {
 
             bool flag = false;
-            if (SecurityUtils.extensionIs(path, ".pem"))
+            if (SecurityUtils.extensionIs(path, ".pem") || SecurityUtils.extensionIs(path, ".key"))
             {
                 return loadPrivateKeyFromPEMFile(path);
             }
-            if (SecurityUtils.extensionIs(path, ".pfx") || SecurityUtils.extensionIs(path, ".p12"))
+            if (SecurityUtils.extensionIs(path, ".pfx") || SecurityUtils.extensionIs(path, ".p12") || SecurityUtils.extensionIs(path, ".pkcs12"))
             {
                 return loadPrivateKeyFromPKCS12File(path, password);
             }
