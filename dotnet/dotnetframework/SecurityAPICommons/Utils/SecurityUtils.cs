@@ -16,7 +16,15 @@ namespace SecurityAPICommons.Utils
         [SecuritySafeCritical]
         public static bool compareStrings(string one, string two)
         {
-            return string.Compare(one, two, true) == 0;
+            if(one != null && two != null)
+            {
+                return string.Compare(one, two, true) == 0;
+            }
+            else
+            {
+                return false;
+            }
+            
         }
 
         /// <summary>
