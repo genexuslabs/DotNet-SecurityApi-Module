@@ -232,6 +232,7 @@ namespace GeneXusJWT.GenexusJWT
                 }
                 else
                 {
+                    
                     System.Security.Claims.Claim netPrivateClaim = new System.Security.Claims.Claim(privateClaim.getKey(), privateClaim.getValue());
 
                     payload.AddClaim(netPrivateClaim);
@@ -257,8 +258,19 @@ namespace GeneXusJWT.GenexusJWT
                 List<Claim> registeredC = registeredClaims.getAllClaims();
                 foreach (Claim registeredClaim in registeredC)
                 {
-                    System.Security.Claims.Claim netRegisteredClaim = new System.Security.Claims.Claim(registeredClaim.getKey(), registeredClaim.getValue());
-                    payload.AddClaim(netRegisteredClaim);
+                    System.Security.Claims.Claim netRegisteredClaim;
+                    if (RegisteredClaimUtils.isTimeValidatingClaim(registeredClaim.getKey()))
+                        {
+
+                        netRegisteredClaim = new System.Security.Claims.Claim(registeredClaim.getKey(), registeredClaim.getValue(), System.Security.Claims.ClaimValueTypes.Integer32);
+                    }
+                    else 
+                    {
+
+                        netRegisteredClaim = new System.Security.Claims.Claim(registeredClaim.getKey(), registeredClaim.getValue());
+                    }
+
+                        payload.AddClaim(netRegisteredClaim);
                 }
             }
             // ****END BUILD PAYLOAD****//
