@@ -287,7 +287,7 @@ namespace SecurityAPICommons.Keys
             {
                 return loadPublicKeyFromDERFile(path);
             }
-            if (SecurityUtils.extensionIs(path, ".pfx") || SecurityUtils.extensionIs(path, ".p12"))
+            if (SecurityUtils.extensionIs(path, ".pfx") || SecurityUtils.extensionIs(path, ".p12") || SecurityUtils.extensionIs(path, ".pkcs12"))
             {
                 return loadPublicKeyFromPKCS12File(path, password);
             }

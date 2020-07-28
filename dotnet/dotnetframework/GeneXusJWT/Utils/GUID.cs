@@ -9,6 +9,9 @@ using SecurityAPICommons.Commons;
 
 namespace GeneXusJWT.GenexusJWTUtils
 {
+
+    /*****DEPRECATED OBJECT SINCE GeneXus 16 upgrade 11******/
+
     [SecuritySafeCritical]
     public class GUID : GUIDObject
     {
@@ -20,6 +23,7 @@ namespace GeneXusJWT.GenexusJWTUtils
 
         }
 
+        [Obsolete("GUID object is deprecated. USe Genexus GUID data type instead https://wiki.genexus.com/commwiki/servlet/wiki?31772,GUID+data+type")]
         [SecuritySafeCritical]
         public override string Generate()
         {
