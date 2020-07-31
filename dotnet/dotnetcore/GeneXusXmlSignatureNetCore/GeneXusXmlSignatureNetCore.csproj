@@ -7,9 +7,12 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>NETCORE</DefineConstants>
+    
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1'">
+    <DefineConstants>NETCORE</DefineConstants>
 
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\dotnetframework\GeneXusXmlSignature\Commons\DSigOptions.cs" Link="Commons\DSigOptions.cs" />
     <Compile Include="..\..\dotnetframework\GeneXusXmlSignature\Commons\IXmlDSigSignerObject.cs" Link="Commons\IXmlDSigSignerObject.cs" />
