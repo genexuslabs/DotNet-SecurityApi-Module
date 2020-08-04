@@ -117,13 +117,13 @@ namespace GeneXusJWT.GenexusJWTClaims
 
                     if (registeredClaimCustomTime != 0)
                     {
-                        newTime = (Int32)(DateTime.UtcNow.AddSeconds(registeredClaimCustomTime).Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                        newTime = (Int32)(DateTime.UtcNow.AddSeconds(-1*registeredClaimCustomTime).Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
                     }
                     else
                     {
                         newTime = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
                     }
-                    return (Int32)exp <= newTime;
+                    return (Int32)exp >= newTime;
                 case RegisteredClaim.sub:
                     return SecurityUtils.compareStrings(token.Payload.Sub, registeredClaimValue);
                 case RegisteredClaim.aud:
