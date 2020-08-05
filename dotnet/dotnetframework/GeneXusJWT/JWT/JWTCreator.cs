@@ -441,14 +441,19 @@ namespace GeneXusJWT.GenexusJWT
 
         private bool VerifyHeader(JwtSecurityToken jwtToken, JWTOptions options)
         {
+            int claimsNumber = jwtToken.Header.Count;
             HeaderParameters parameters = options.GetHeaderParameters();
-            if (parameters.IsEmpty())
+            if (parameters.IsEmpty() && claimsNumber == 2)
             {
                 return true;
             }
+            if(parameters.IsEmpty() && claimsNumber > 2)
+            {
+                return false;
+            }
 
             List<String> allParms = parameters.GetAll();
-            if (jwtToken.Header.Count != allParms.Count + 2)
+            if (claimsNumber != allParms.Count + 2)
             {
                 return false;
             }
