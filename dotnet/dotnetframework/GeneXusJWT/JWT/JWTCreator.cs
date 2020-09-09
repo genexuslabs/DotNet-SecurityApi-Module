@@ -1,4 +1,4 @@
-﻿
+
 using GeneXusJWT.GenexusComons;
 using GeneXusJWT.GenexusJWTClaims;
 using GeneXusJWT.GenexusJWTUtils;
@@ -40,6 +40,7 @@ namespace GeneXusJWT.GenexusJWT
         [SecuritySafeCritical]
         public string DoCreate(string algorithm, PrivateClaims privateClaims, JWTOptions options)
         {
+			this.error.cleanError();
             if (options.HasError())
             {
                 this.error = options.GetError();
@@ -112,86 +113,23 @@ namespace GeneXusJWT.GenexusJWT
             return signedJwt;
         }
 
-        [SecuritySafeCritical]
-        public bool DoVerify(string token, string expectedAlgorithm, PrivateClaims privateClaims, JWTOptions options)
-        {
-            if (options.HasError())
-            {
-                this.error = options.GetError();
-                return false;
-            }
-            JWTAlgorithm expectedJWTAlgorithm = JWTAlgorithmUtils.getJWTAlgorithm(expectedAlgorithm, this.error);
-            if (this.HasError())
-            {
-                return false;
-            }
+		[SecuritySafeCritical]
+		public bool DoVerify(String token, String expectedAlgorithm, PrivateClaims privateClaims, JWTOptions options)
+		{
+			return DoVerify(token, expectedAlgorithm, privateClaims, options, true, true);
+		}
 
-            /***Hack to support 1024 RSA key lengths - BEGIN***/
-            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["RS256"] = 1024;
-            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["RS512"] = 1024;
-            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["RS384"] = 1024;
-            /***Hack to support 1024 RSA key lengths - END***/
+		[SecuritySafeCritical]
+		public bool DoVerifyJustSignature(String token, String expectedAlgorithm, JWTOptions options)
+		{
+			return DoVerify(token, expectedAlgorithm, null, options, false, false);
+		}
 
-
-            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
-            JwtSecurityToken jwtToken = new JwtSecurityToken(token);
-
-            if (validateRegisteredClaims(jwtToken, options) && !isRevoqued(jwtToken, options) && verifyPrivateClaims(jwtToken, privateClaims, options) && VerifyHeader(jwtToken, options))
-            {//if validates all registered claims and it is not on revocation list
-                TokenValidationParameters parms = new TokenValidationParameters();
-                parms.ValidateLifetime = false;
-                parms.ValidateAudience = false;
-                parms.ValidateIssuer = false;
-                parms.ValidateActor = false;
-                JWTAlgorithm alg = JWTAlgorithmUtils.getJWTAlgorithm_forVerification(jwtToken.Header.Alg, this.error);
-                if (this.HasError())
-                {
-                    return false;
-                }
-                if (JWTAlgorithmUtils.getJWTAlgorithm(jwtToken.Header.Alg, this.error) != expectedJWTAlgorithm || this.HasError())
-                {
-                    this.error.setError("JW008", "Expected algorithm does not match token algorithm");
-                    return false;
-                }
-                SecurityKey genericKey = null;
-                if (JWTAlgorithmUtils.isPrivate(alg))
-                {
-
-
-                    CertificateX509 cert = options.GetCertificate();
-                    if (cert.HasError())
-                    {
-                        this.error = cert.GetError();
-                        return false;
-                    }
-                    RsaSecurityKey publicKey = new RsaSecurityKey((RSA)cert.getPublicKeyXML());
-                    genericKey = publicKey;
-                }
-                else
-                {
-                    SymmetricSecurityKey symKey = new SymmetricSecurityKey(options.getSecret());
-                    genericKey = symKey;
-                }
-
-                SigningCredentials signingCredentials = JWTAlgorithmUtils.getSigningCredentials(alg, genericKey, this.error);
-                parms.IssuerSigningKey = genericKey;
-                SecurityToken validatedToken;
-                try
-                {
-                    handler.ValidateToken(token, parms, out validatedToken);
-                }
-                catch (Exception e)
-                {
-                    this.error.setError("JW004", e.Message);
-
-                    return false;
-                }
-                return true;
-
-            }
-            return false;
-
-        }
+		[SecuritySafeCritical]
+		public bool DoVerifySignature(String token, String expectedAlgorithm, JWTOptions options)
+		{
+			return DoVerify(token, expectedAlgorithm, null, options, false, true);
+		}
 
         [SecuritySafeCritical]
         public string GetPayload(string token)
@@ -214,9 +152,107 @@ namespace GeneXusJWT.GenexusJWT
         }
 
 
-        /******** EXTERNAL OBJECT PUBLIC METHODS - END ********/
+		/******** EXTERNAL OBJECT PUBLIC METHODS - END ********/
 
-        private JwtPayload doBuildPayload(PrivateClaims privateClaims, JWTOptions options)
+		[SecuritySafeCritical]
+		private bool DoVerify(string token, string expectedAlgorithm, PrivateClaims privateClaims, JWTOptions options, bool verifyClaims, bool verifyRegClaims)
+		{
+			this.error.cleanError();
+			if (options.HasError())
+			{
+				this.error = options.GetError();
+				return false;
+			}
+			JWTAlgorithm expectedJWTAlgorithm = JWTAlgorithmUtils.getJWTAlgorithm(expectedAlgorithm, this.error);
+			if (this.HasError())
+			{
+				return false;
+			}
+
+			/***Hack to support 1024 RSA key lengths - BEGIN***/
+			AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["RS256"] = 1024;
+			AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["RS512"] = 1024;
+			AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["RS384"] = 1024;
+			/***Hack to support 1024 RSA key lengths - END***/
+
+
+			JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+			JwtSecurityToken jwtToken = new JwtSecurityToken(token);
+			if(isRevoqued(jwtToken, options))
+			{
+				return false;
+			}
+			if(verifyRegClaims)
+			{
+				if(!validateRegisteredClaims(jwtToken, options))
+				{
+					return false;
+				}
+			}
+			if(verifyClaims)
+			{
+				if(!verifyPrivateClaims(jwtToken, privateClaims, options) || !VerifyHeader(jwtToken, options))
+				{
+					return false;
+				}
+			}
+			//if validates all registered claims and it is not on revocation list
+			TokenValidationParameters parms = new TokenValidationParameters();
+			parms.ValidateLifetime = false;
+			parms.ValidateAudience = false;
+			parms.ValidateIssuer = false;
+			parms.ValidateActor = false;
+			JWTAlgorithm alg = JWTAlgorithmUtils.getJWTAlgorithm_forVerification(jwtToken.Header.Alg, this.error);
+			if (this.HasError())
+			{
+				return false;
+			}
+			if (JWTAlgorithmUtils.getJWTAlgorithm(jwtToken.Header.Alg, this.error) != expectedJWTAlgorithm || this.HasError())
+			{
+				this.error.setError("JW008", "Expected algorithm does not match token algorithm");
+				return false;
+			}
+			SecurityKey genericKey = null;
+			if (JWTAlgorithmUtils.isPrivate(alg))
+			{
+
+
+				CertificateX509 cert = options.GetCertificate();
+				if (cert.HasError())
+				{
+					this.error = cert.GetError();
+					return false;
+				}
+				RsaSecurityKey publicKey = new RsaSecurityKey((RSA)cert.getPublicKeyXML());
+				genericKey = publicKey;
+			}
+			else
+			{
+				SymmetricSecurityKey symKey = new SymmetricSecurityKey(options.getSecret());
+				genericKey = symKey;
+			}
+
+			SigningCredentials signingCredentials = JWTAlgorithmUtils.getSigningCredentials(alg, genericKey, this.error);
+			parms.IssuerSigningKey = genericKey;
+			SecurityToken validatedToken;
+			try
+			{
+				handler.ValidateToken(token, parms, out validatedToken);
+			}
+			catch (Exception e)
+			{
+				this.error.setError("JW004", e.Message);
+
+				return false;
+			}
+			return true;
+
+			
+
+		}
+
+
+		private JwtPayload doBuildPayload(PrivateClaims privateClaims, JWTOptions options)
         {
             JwtPayload payload = new JwtPayload();
             // ****START BUILD PAYLOAD****//
