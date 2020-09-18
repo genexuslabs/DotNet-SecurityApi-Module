@@ -135,21 +135,52 @@ namespace GeneXusJWT.GenexusJWT
         public string GetPayload(string token)
         {
 
-            return getTokenPart(token, "payload");
+			string res = "";
+			try
+			{
+				res = getTokenPart(token, "payload");
+			}
+			catch (Exception e)
+			{
+				this.error.setError("JW009", e.Message);
+				return "";
+			}
+			return res;
 
-        }
+		}
 
         [SecuritySafeCritical]
         public string GetHeader(string token)
         {
-            return getTokenPart(token, "header");
-        }
+			string res = "";
+			try
+			{
+				res = getTokenPart(token, "header");
+			}
+			catch (Exception e)
+			{
+				this.error.setError("JW010", e.Message);
+				return "";
+			}
+			return res;
+		}
 
         [SecuritySafeCritical]
         public string GetTokenID(string token)
         {
-            return getTokenPart(token, "id");
-        }
+			string res = "";
+			try
+			{
+
+				res = getTokenPart(token, "id");
+			}
+			catch (Exception e)
+			{
+				this.error.setError("JW011", e.Message);
+				return "";
+			}
+			return res;
+		}
 
 
 		/******** EXTERNAL OBJECT PUBLIC METHODS - END ********/
