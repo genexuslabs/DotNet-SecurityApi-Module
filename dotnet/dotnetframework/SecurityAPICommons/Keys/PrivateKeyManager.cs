@@ -17,6 +17,7 @@ using System.Security.Cryptography;
 using Org.BouncyCastle.Asn1.Nist;
 using SecurityAPICommons.Commons;
 using SecurityAPICommons.Utils;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace SecurityAPICommons.Keys
 {
@@ -67,9 +68,68 @@ namespace SecurityAPICommons.Keys
             return true;
         }
 
-        /******** EXTERNAL OBJECT PUBLIC METHODS - END ********/
+		[SecuritySafeCritical]
+		public bool FromBase64(string base64)
+		{
+			bool res;
+			try
+			{
+				res = ReadBase64(base64);
+			}
+			catch (IOException e)
+			{
+				this.error.setError("PK0015", e.Message);
+				return false;
+			}
+			this.hasPrivateKey = res;
+			return res;
+		}
 
-        [SecuritySafeCritical]
+		[SecuritySafeCritical]
+		public string ToBase64()
+		{
+			if (this.hasPrivateKey)
+			{
+				//PrivateKey priKey = getPrivateKeyXML();
+				//return Base64.toBase64String(priKey.getEncoded());
+				string encoded = "";
+				try
+				{
+					encoded = Base64.ToBase64String(this.privateKeyInfo.GetEncoded());
+				}
+				catch (Exception e)
+				{
+					this.error.setError("PK0017", e.Message);
+					return "";
+				}
+				return encoded;
+			}
+			this.error.setError("PK0016", "No private key loaded");
+			return "";
+
+
+		}
+
+		/******** EXTERNAL OBJECT PUBLIC METHODS - END ********/
+
+		private bool ReadBase64(string base64)
+		{
+		byte[] keybytes = Base64.Decode(base64);
+		Asn1InputStream istream = new Asn1InputStream(keybytes);
+		Asn1Sequence seq = (Asn1Sequence)istream.ReadObject();
+	    this.privateKeyInfo = PrivateKeyInfo.GetInstance(seq);
+	    istream.Close();
+	    if (this.privateKeyInfo == null)
+
+		{
+			this.error.setError("PK015", "Could not read private key from base64 string");
+			return false;
+		}
+	    this.privateKeyAlgorithm = this.privateKeyInfo.PrivateKeyAlgorithm.Algorithm.Id;//this.privateKeyInfo.GetPrivateKeyAlgorithm().getAlgorithm().getId(); // 1.2.840.113549.1.1.1
+			return true;
+	}
+
+	[SecuritySafeCritical]
         public AsymmetricAlgorithm getPrivateKeyForXML()
         {
 
