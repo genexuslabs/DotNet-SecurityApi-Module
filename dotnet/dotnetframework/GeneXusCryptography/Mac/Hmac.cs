@@ -31,7 +31,12 @@ namespace GeneXusCryptography.Mac
         [SecuritySafeCritical]
         public string calculate(string plainText, string password, string algorithm)
         {
-            byte[] pass = Hex.Decode(password);
+			byte[] pass = SecurityUtils.GetHexa(password, "HS002", this.error);
+			if (this.HasError())
+			{
+				return "";
+			}
+			
             EncodingUtil eu = new EncodingUtil();
             byte[] inputBytes = eu.getBytes(plainText);
             if (this.HasError())
@@ -46,7 +51,14 @@ namespace GeneXusCryptography.Mac
             }
             IDigest digest = hash.createHash(alg);
             HMac engine = new HMac(digest);
-            engine.Init(new KeyParameter(pass));
+			try
+			{
+				engine.Init(new KeyParameter(pass));
+			}catch(Exception e)
+			{
+				this.error.setError("HS003", e.Message);
+				return "";
+			}
             byte[] resBytes = new byte[engine.GetMacSize()];
             engine.BlockUpdate(inputBytes, 0, inputBytes.Length);
             engine.DoFinal(resBytes, 0);

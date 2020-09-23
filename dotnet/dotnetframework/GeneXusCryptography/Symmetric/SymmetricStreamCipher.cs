@@ -11,6 +11,7 @@ using Org.BouncyCastle.Utilities.Encoders;
 using System;
 
 using System.Security;
+using SecurityAPICommons.Utils;
 
 namespace GeneXusCryptography.Symmetric
 {
@@ -56,20 +57,40 @@ namespace GeneXusCryptography.Symmetric
             {
                 return "";
             }
-            /* KeyParameter keyParam = new KeyParameter(Hex.Decode(key));
+			/* KeyParameter keyParam = new KeyParameter(Hex.Decode(key));
              engine.Init(true, keyParam);*/
-            KeyParameter keyParam = new KeyParameter(Hex.Decode(key));
+			byte[] keyBytes = SecurityUtils.GetHexa(key, "SS007", this.error);
+			byte[] ivBytes = SecurityUtils.GetHexa(IV, "SS007", this.error);
+			if (this.HasError())
+			{
+				return "";
+			}
+			KeyParameter keyParam = new KeyParameter(keyBytes);
             if (SymmetricStreamAlgorithmUtils.usesIV(algorithm, this.GetError()))
             {
                 if (!this.GetError().existsError())
                 {
-                    ParametersWithIV keyParamWithIV = new ParametersWithIV(keyParam, Hex.Decode(IV));
-                    engine.Init(false, keyParamWithIV);
+                    ParametersWithIV keyParamWithIV = new ParametersWithIV(keyParam, ivBytes);
+					try
+					{
+						engine.Init(false, keyParamWithIV);
+					}catch(Exception e)
+					{
+						this.error.setError("SS008", e.Message);
+						return "";
+					}
                 }
             }
             else
             {
-                engine.Init(false, keyParam);
+				try
+				{
+					engine.Init(false, keyParam);
+				}catch(Exception e)
+				{
+					this.error.setError("SS009", e.Message);
+					return "";
+				}
             }
             EncodingUtil eu = new EncodingUtil();
             byte[] input = eu.getBytes(plainText);
@@ -115,20 +136,40 @@ namespace GeneXusCryptography.Symmetric
                 return "";
             }
 
-            /* KeyParameter keyParam = new KeyParameter(Hex.Decode(key));
+			/* KeyParameter keyParam = new KeyParameter(Hex.Decode(key));
              engine.Init(false, keyParam);*/
-            KeyParameter keyParam = new KeyParameter(Hex.Decode(key));
+			byte[] keyBytes = SecurityUtils.GetHexa(key, "SS010", this.error);
+			byte[] ivBytes = SecurityUtils.GetHexa(IV, "SS010", this.error);
+			if (this.HasError())
+			{
+				return "";
+			}
+			KeyParameter keyParam = new KeyParameter(keyBytes);
             if (SymmetricStreamAlgorithmUtils.usesIV(algorithm, this.GetError()))
             {
                 if (!this.GetError().existsError())
                 {
-                    ParametersWithIV keyParamWithIV = new ParametersWithIV(keyParam, Hex.Decode(IV));
-                    engine.Init(false, keyParamWithIV);
+                    ParametersWithIV keyParamWithIV = new ParametersWithIV(keyParam, ivBytes);
+					try
+					{
+						engine.Init(false, keyParamWithIV);
+					}catch(Exception e)
+					{
+						this.error.setError("SS011", e.Message);
+						return "";
+					}
                 }
             }
             else
             {
-                engine.Init(false, keyParam);
+				try
+				{
+					engine.Init(false, keyParam);
+				}catch(Exception e)
+				{
+					this.error.setError("SS012", e.Message);
+					return "";
+				}
             }
             byte[] input = Base64.Decode(encryptedInput);
             byte[] output = new byte[input.Length];
