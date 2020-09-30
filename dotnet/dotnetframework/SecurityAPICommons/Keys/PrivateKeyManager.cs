@@ -56,9 +56,9 @@ namespace SecurityAPICommons.Keys
             {
                 loadKeyFromFile(privateKeyPath, alias, password);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+				this.error.setError("PK018", e.Message);
                 return false;
             }
             if (this.HasError())

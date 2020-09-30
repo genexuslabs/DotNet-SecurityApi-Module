@@ -1,4 +1,7 @@
 ﻿
+using Org.BouncyCastle.Utilities.Encoders;
+using SecurityAPICommons.Commons;
+using System;
 using System.Security;
 
 namespace SecurityAPICommons.Utils
@@ -54,5 +57,21 @@ namespace SecurityAPICommons.Utils
             }
             return path.Substring(lastIndexOf);
         }
-    }
+
+		[SecuritySafeCritical]
+		public static byte[] GetHexa(string hex, string code, Error error)
+		{
+			byte[] output;
+			try
+			{
+				output = Hex.Decode(hex);
+			}
+			catch (Exception e)
+			{
+				error.setError(code, e.Message);
+				return null;
+			}
+			return output;
+		}
+	}
 }

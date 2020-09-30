@@ -11,6 +11,7 @@ using GeneXusCryptography.Commons;
 using SecurityAPICommons.Commons;
 using GeneXusCryptography.SymmetricUtils;
 using SecurityAPICommons.Config;
+using SecurityAPICommons.Utils;
 
 namespace GeneXusCryptography.Symmetric
 {
@@ -64,10 +65,24 @@ namespace GeneXusCryptography.Symmetric
             {
                 return "";
             }
-            KeyParameter keyParam = new KeyParameter(Hex.Decode(key));
-            byte[] nonceBytes = Hex.Decode(nonce);
+			byte[] nonceBytes = SecurityUtils.GetHexa(nonce, "SB024", this.error);
+			byte[] keyBytes = SecurityUtils.GetHexa(key, "SB024", this.error);
+			if(this.HasError())
+			{
+				return "";
+			}
+
+			KeyParameter keyParam = new KeyParameter(keyBytes);
+            
             AeadParameters AEADparams = new AeadParameters(keyParam, macSize, nonceBytes);
-            bbc.Init(true, AEADparams);
+			try
+			{
+				bbc.Init(true, AEADparams);
+			}catch(Exception e)
+			{
+				this.error.setError("SB029", e.Message);
+				return "";
+			}
             EncodingUtil eu = new EncodingUtil();
             byte[] inputBytes = eu.getBytes(plainText);
             if (eu.GetError().existsError())
@@ -123,11 +138,23 @@ namespace GeneXusCryptography.Symmetric
             {
                 return "";
             }
-
-            KeyParameter keyParam = new KeyParameter(Hex.Decode(key));
-            byte[] nonceBytes = Hex.Decode(nonce);
+			byte[] nonceBytes = SecurityUtils.GetHexa(nonce, "SB025", this.error);
+			byte[] keyBytes = SecurityUtils.GetHexa(key, "SB025", this.error);
+			if(this.HasError())
+			{
+				return "";
+			}
+			KeyParameter keyParam = new KeyParameter(keyBytes);
+            
             AeadParameters AEADparams = new AeadParameters(keyParam, macSize, nonceBytes);
-            bbc.Init(false, AEADparams);
+			try
+			{
+				bbc.Init(false, AEADparams);
+			}catch(Exception e)
+			{
+				this.error.setError("SB030", e.Message);
+				return "";
+			}
             byte[] out2 = Base64.Decode(encryptedInput);
             byte[] comparisonBytes = new byte[bbc.GetOutputSize(out2.Length)];
             int length = bbc.ProcessBytes(out2, 0, out2.Length, comparisonBytes, 0);
@@ -176,17 +203,35 @@ namespace GeneXusCryptography.Symmetric
             {
                 return "";
             }
-
-            KeyParameter keyParam = new KeyParameter(Hex.Decode(key));
+			byte[] byteIV = SecurityUtils.GetHexa(IV, "SB022", this.error);
+			byte[] byteKey = SecurityUtils.GetHexa(key, "SB022", this.error);
+			if (this.HasError())
+			{
+				return "";
+			}
+			KeyParameter keyParam = new KeyParameter(byteKey);
 
             if (SymmetricBlockMode.ECB != mode && SymmetricBlockMode.OPENPGPCFB != mode)
             {
-                ParametersWithIV keyParamWithIV = new ParametersWithIV(keyParam, Hex.Decode(IV));
-                bbc.Init(true, keyParamWithIV);
+                ParametersWithIV keyParamWithIV = new ParametersWithIV(keyParam, byteIV);
+				try{
+					bbc.Init(true, keyParamWithIV);
+				}catch(Exception e)
+				{
+					this.error.setError("SB025", e.Message);
+					return "";
+				}
             }
             else
             {
-                bbc.Init(true, keyParam);
+				try
+				{
+					bbc.Init(true, keyParam);
+				}catch(Exception e)
+				{
+					this.error.setError("SB026", e.Message);
+					return "";
+				}
             }
 
             EncodingUtil eu = new EncodingUtil();
@@ -244,16 +289,36 @@ namespace GeneXusCryptography.Symmetric
             {
                 return "";
             }
+			byte[] bytesKey = SecurityUtils.GetHexa(key, "SB023", this.error);
+			byte[] bytesIV = SecurityUtils.GetHexa(IV, "SB023", this.error);
+			if (this.HasError())
+			{
+				return "";
+			}
 
-            KeyParameter keyParam = new KeyParameter(Hex.Decode(key));
+			KeyParameter keyParam = new KeyParameter(bytesKey);
             if (SymmetricBlockMode.ECB != mode && SymmetricBlockMode.OPENPGPCFB != mode)
             {
-                ParametersWithIV keyParamWithIV = new ParametersWithIV(keyParam, Hex.Decode(IV));
-                bbc.Init(false, keyParamWithIV);
+                ParametersWithIV keyParamWithIV = new ParametersWithIV(keyParam, bytesIV);
+				try
+				{
+					bbc.Init(false, keyParamWithIV);
+				}catch(Exception e)
+				{
+					this.error.setError("SB027", e.Message);
+					return "";
+				}
             }
             else
             {
-                bbc.Init(false, keyParam);
+				try
+				{
+					bbc.Init(false, keyParam);
+				}catch(Exception e)
+				{
+					this.error.setError("SB028", e.Message);
+					return "";
+				}
             }
 
             byte[] out2 = Base64.Decode(encryptedInput);

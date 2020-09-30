@@ -50,7 +50,12 @@ namespace GeneXusCryptography.Mac
                 this.error.setError("CM002", "The mac length must be less or equal than the algorithm block size.");
                 return "";
             }
-            byte[] byteKey = Hex.Decode(key);
+			byte[] byteKey = SecurityUtils.GetHexa(key, "CM003", this.error);
+			if (this.HasError())
+			{
+				return "";
+			}
+			
             EncodingUtil eu = new EncodingUtil();
             byte[] byteInput = eu.getBytes(plainText);
 
@@ -65,7 +70,14 @@ namespace GeneXusCryptography.Mac
             {
                 mac = new CMac(blockCipher);
             }
-            mac.Init(parms);
+			try
+			{
+				mac.Init(parms);
+			}catch(Exception e)
+			{
+				this.error.setError("CM004", e.Message);
+				return "";
+			}
             byte[] resBytes = new byte[mac.GetMacSize()];
             mac.BlockUpdate(byteInput, 0, byteInput.Length);
             mac.DoFinal(resBytes, 0);

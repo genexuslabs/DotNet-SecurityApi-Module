@@ -65,9 +65,9 @@ namespace GeneXusJWT.GenexusComons
             {
                 secret = Hex.Decode(value);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                this.error.setError("OP001", "Hexadecimal value expected");
+                this.error.setError("OP001", e.Message);
                 secret = null;
             }
 
