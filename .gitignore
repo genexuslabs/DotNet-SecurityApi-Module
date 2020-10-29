@@ -60,3 +60,4 @@ dotnet/dotnetcore/GeneXusFtpsNetCore/bin/Release/netcoreapp3.1/GeneXusSecurityAP
 dotnet/dotnetframework/GeneXusFtps/obj/
 dotnet/dotnetframework/GeneXusFtps/bin/
 dotnet/dotnetframework/GeneXusFtps/packages.config
+dotnet/dotnetcore/GeneXusFtpsNetCore/obj/

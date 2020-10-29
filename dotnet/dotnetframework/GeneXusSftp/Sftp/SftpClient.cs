@@ -136,14 +136,24 @@ namespace Sftp.GeneXusSftp
             {
                 stream = File.OpenRead(local_path);
             }
-            catch (IOException)
+            catch (Exception e)
             {
-                this.error.setError("SF011", "Could not find the local file");
+                this.error.setError("SF011", e.Message);
                 return false;
             }
 
             string rDir = "";
-            if (this.channel.WorkingDirectory.Contains("/"))
+            bool control = false;
+			try
+			{
+                control = this.channel.WorkingDirectory.Contains("/");
+
+            }catch(Exception e)
+			{
+                this.error.setError("SF018", e.Message);
+                return false;
+			}
+            if (control)
             {
                 remoteDir = $"/{remoteDir.Replace(@"\", "/")}";
                 rDir += this.channel.WorkingDirectory + remoteDir + "/" + GetFileNamne(localPath);
@@ -156,9 +166,9 @@ namespace Sftp.GeneXusSftp
             {
                 this.channel.UploadFile(stream, rDir, true, null);
             }
-            catch (SshException)
+            catch (Exception e)
             {
-                this.error.setError("SF012", "Could not upload file");
+                this.error.setError("SF012", e.Message);
 
                 return false;
             }
