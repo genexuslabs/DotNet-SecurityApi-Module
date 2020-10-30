@@ -374,7 +374,7 @@ namespace SecurityAPICommons.Keys
             }
             catch
             {
-                this.error.setError("CE009", path + " certificate coud not be loaded");
+                this.error.setError("CE009", "Certificate coud not be loaded");
                 return false;
                 // throw new FileLoadException(path + " certificate coud not be loaded");
             }
@@ -399,9 +399,49 @@ namespace SecurityAPICommons.Keys
             }
             catch (Exception)
             {
-                this.error.setError("CE010", "Error casting public key data for XML signing");
+                this.error.setError("CE010", "Error casting public key data");
                 return null;
             }
+        }
+
+        [SecuritySafeCritical]
+        public AsymmetricAlgorithm getPublicKeyJWT()
+        {
+            string algorithm = this.getPublicKeyAlgorithm();
+            AsymmetricAlgorithm alg;
+            if (SecurityUtils.compareStrings(algorithm, "RSA"))
+            {
+                
+                try
+                {
+                     alg = cert.PublicKey.Key;
+                }
+                catch (Exception e)
+                {
+                    this.error.setError("CE016", e.Message);
+                    return null;
+                }
+            } else if (SecurityUtils.compareStrings(algorithm, "ECDSA"))
+			{
+                try
+                {
+                    alg =  cert.GetECDsaPublicKey();
+                }catch(Exception e)
+				{
+                    this.error.setError("CE15", e.Message);
+                    return null;
+				}
+			}
+			else
+			{
+                this.error.setError("CE014", "Unrecrognized key type");
+                return null;
+			}
+            if(alg != null)
+			{
+                this.error.cleanError();
+			}
+            return alg;
         }
 
         /// <summary>

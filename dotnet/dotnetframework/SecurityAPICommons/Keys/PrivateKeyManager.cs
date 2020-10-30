@@ -90,8 +90,6 @@ namespace SecurityAPICommons.Keys
 		{
 			if (this.hasPrivateKey)
 			{
-				//PrivateKey priKey = getPrivateKeyXML();
-				//return Base64.toBase64String(priKey.getEncoded());
 				string encoded = "";
 				try
 				{
@@ -132,7 +130,11 @@ namespace SecurityAPICommons.Keys
 	[SecuritySafeCritical]
         public AsymmetricAlgorithm getPrivateKeyForXML()
         {
-
+            if (!this.hasPrivateKey)
+            {
+                this.error.setError("PK0021", "No private key loaded");
+                return null;
+            }
             string algorithm = getPrivateKeyAlgorithm();
             if (SecurityUtils.compareStrings("RSA", algorithm))
             {
@@ -473,5 +475,63 @@ namespace SecurityAPICommons.Keys
             throw new ArgumentNullException("Class provided is not convertible: " + key.GetType().FullName);
 
         }
+
+        [SecuritySafeCritical]
+        public AsymmetricAlgorithm getPrivateKeyForJWT()
+        {
+            if (!this.hasPrivateKey)
+			{
+                this.error.setError("PK0020", "No private key loaded");
+                return null;
+            }
+            AsymmetricAlgorithm alg;
+                string algorithm = getPrivateKeyAlgorithm();
+                if (SecurityUtils.compareStrings("RSA", algorithm))
+                {
+
+                    byte[] serializedPrivateBytes = this.privateKeyInfo.ToAsn1Object().GetDerEncoded();
+                    string serializedPrivate = Convert.ToBase64String(serializedPrivateBytes);
+                    RsaPrivateCrtKeyParameters privateKey = (RsaPrivateCrtKeyParameters)PrivateKeyFactory.CreateKey(Convert.FromBase64String(serializedPrivate));
+                    /****System.Security.Cryptography.CryptographicException: The system cannot find the file specified.****/
+                    /****HACK****/
+                    //https://social.msdn.microsoft.com/Forums/vstudio/en-US/7ea48fd0-8d6b-43ed-b272-1a0249ae490f/systemsecuritycryptographycryptographicexception-the-system-cannot-find-the-file-specified?forum=clr#37d4d83d-0eb3-497a-af31-030f5278781a
+                    CspParameters cspParameters = new CspParameters();
+                    cspParameters.Flags = CspProviderFlags.UseMachineKeyStore;
+                    cspParameters.KeyContainerName = "MyKeyContainerName";
+                    alg =  DotNetUtilities.ToRSA(privateKey, cspParameters);
+                    /****System.Security.Cryptography.CryptographicException: The system cannot find the file specified.****/
+                    /****HACK****/
+                }
+                else if (SecurityUtils.compareStrings("ECDSA", algorithm))
+                {
+                    string b64Encoded = this.ToBase64();
+                    byte[] privKeyBytes8 = Convert.FromBase64String(b64Encoded);//Encoding.UTF8.GetBytes(privKeyEcc);
+                try
+                {
+                    ECDsaCng pubCNG = new ECDsaCng(CngKey.Import(privKeyBytes8, CngKeyBlobFormat.Pkcs8PrivateBlob));
+                    alg = pubCNG;
+                }catch(Exception e)
+				{
+                    this.error.setError("PK022", e.Message);
+                    return null;
+				}
+                }
+                else
+                {
+                    this.error.setError("PK019", "Unrecognized key type");
+                    return null;
+                }
+            if(alg != null)
+			{
+                this.error.cleanError();
+			}
+            return alg;
+
+        }
+
+
+
+
+
     }
 }
