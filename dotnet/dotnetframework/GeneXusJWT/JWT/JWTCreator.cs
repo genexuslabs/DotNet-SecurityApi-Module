@@ -33,14 +33,14 @@ namespace GeneXusJWT.GenexusJWT
             eu.setEncoding("UTF8");
             this.counter = 0;
             /***Config to Debug - Delete on Release version!!!***/
-            //Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
+           Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
         }
 
         /******** EXTERNAL OBJECT PUBLIC METHODS - BEGIN ********/
         [SecuritySafeCritical]
         public string DoCreate(string algorithm, PrivateClaims privateClaims, JWTOptions options)
         {
-			this.error.cleanError();
+            this.error.cleanError();
             if (options.HasError())
             {
                 this.error = options.GetError();
@@ -61,6 +61,12 @@ namespace GeneXusJWT.GenexusJWT
             AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForSigningMap["RS384"] = 1024;
             /***Hack to support 1024 RSA key lengths - END***/
 
+            /***Hack to support 192 ECDSA key lengths - BEGIN***/
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForSigningMap["ES256"] = 112;
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForSigningMap["ES512"] = 112;
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForSigningMap["ES384"] = 112;
+            /***Hack to support 192 ECDSA key lengths - END***/
+
             JwtPayload payload = doBuildPayload(privateClaims, options);
 
             SecurityKey genericKey = null;
@@ -73,8 +79,39 @@ namespace GeneXusJWT.GenexusJWT
                     this.error = key.GetError();
                     return "";
                 }
-                RsaSecurityKey privateKey = new RsaSecurityKey((RSA)key.getPrivateKeyForXML());
-                genericKey = privateKey;
+                if (SecurityUtils.compareStrings(key.getPrivateKeyAlgorithm(), "RSA"))
+                {
+                    try
+                    {
+                        genericKey = new RsaSecurityKey((RSA)key.getPrivateKeyForJWT());
+                    }catch(Exception)
+					{
+                        this.error = key.GetError();
+                        return "";
+					}
+
+                }
+                else if (SecurityUtils.compareStrings(key.getPrivateKeyAlgorithm(), "ECDSA"))
+                {
+					try { 
+                    genericKey = new ECDsaSecurityKey((ECDsa)key.getPrivateKeyForJWT());
+                    }
+                    catch (Exception)
+                    {
+                        this.error = key.GetError();
+                        return "";
+                    }
+                }            
+               else
+                {
+                    this.error.setError("JW012", "Not recognized key algorithm");
+                    return "";
+                }
+                if (genericKey == null)
+                {
+                    this.error = key.GetError();
+                    return "";
+                }
             }
             else
             {
@@ -92,6 +129,7 @@ namespace GeneXusJWT.GenexusJWT
             string signedJwt = "";
             try
             {
+                
                 JwtHeader header = new JwtHeader(signingCredentials);
                 if (!options.GetHeaderParameters().IsEmpty())
                 {
@@ -105,7 +143,7 @@ namespace GeneXusJWT.GenexusJWT
             catch (Exception e)
             {
 
-                this.error.setError("JW003", e.Message + e.StackTrace);
+                this.error.setError("JW003", "key size: " +  /*genericKey.KeySize.ToString()*/e.Message + e.StackTrace);
 
                 return "";
             }
@@ -113,177 +151,219 @@ namespace GeneXusJWT.GenexusJWT
             return signedJwt;
         }
 
-		[SecuritySafeCritical]
-		public bool DoVerify(String token, String expectedAlgorithm, PrivateClaims privateClaims, JWTOptions options)
-		{
-			return DoVerify(token, expectedAlgorithm, privateClaims, options, true, true);
-		}
+        [SecuritySafeCritical]
+        public bool DoVerify(String token, String expectedAlgorithm, PrivateClaims privateClaims, JWTOptions options)
+        {
+            return DoVerify(token, expectedAlgorithm, privateClaims, options, true, true);
+        }
 
-		[SecuritySafeCritical]
-		public bool DoVerifyJustSignature(String token, String expectedAlgorithm, JWTOptions options)
-		{
-			return DoVerify(token, expectedAlgorithm, null, options, false, false);
-		}
+        [SecuritySafeCritical]
+        public bool DoVerifyJustSignature(String token, String expectedAlgorithm, JWTOptions options)
+        {
+            return DoVerify(token, expectedAlgorithm, null, options, false, false);
+        }
 
-		[SecuritySafeCritical]
-		public bool DoVerifySignature(String token, String expectedAlgorithm, JWTOptions options)
-		{
-			return DoVerify(token, expectedAlgorithm, null, options, false, true);
-		}
+        [SecuritySafeCritical]
+        public bool DoVerifySignature(String token, String expectedAlgorithm, JWTOptions options)
+        {
+            return DoVerify(token, expectedAlgorithm, null, options, false, true);
+        }
 
         [SecuritySafeCritical]
         public string GetPayload(string token)
         {
 
-			string res = "";
-			try
-			{
-				res = getTokenPart(token, "payload");
-			}
-			catch (Exception e)
-			{
-				this.error.setError("JW009", e.Message);
-				return "";
-			}
-			return res;
+            string res = "";
+            try
+            {
+                res = getTokenPart(token, "payload");
+            }
+            catch (Exception e)
+            {
+                this.error.setError("JW009", e.Message);
+                return "";
+            }
+            return res;
 
-		}
+        }
 
         [SecuritySafeCritical]
         public string GetHeader(string token)
         {
-			string res = "";
-			try
-			{
-				res = getTokenPart(token, "header");
-			}
-			catch (Exception e)
-			{
-				this.error.setError("JW010", e.Message);
-				return "";
-			}
-			return res;
-		}
+            string res = "";
+            try
+            {
+                res = getTokenPart(token, "header");
+            }
+            catch (Exception e)
+            {
+                this.error.setError("JW010", e.Message);
+                return "";
+            }
+            return res;
+        }
 
         [SecuritySafeCritical]
         public string GetTokenID(string token)
         {
-			string res = "";
-			try
-			{
+            string res = "";
+            try
+            {
 
-				res = getTokenPart(token, "id");
-			}
-			catch (Exception e)
-			{
-				this.error.setError("JW011", e.Message);
-				return "";
-			}
-			return res;
-		}
-
-
-		/******** EXTERNAL OBJECT PUBLIC METHODS - END ********/
-
-		[SecuritySafeCritical]
-		private bool DoVerify(string token, string expectedAlgorithm, PrivateClaims privateClaims, JWTOptions options, bool verifyClaims, bool verifyRegClaims)
-		{
-			this.error.cleanError();
-			if (options.HasError())
-			{
-				this.error = options.GetError();
-				return false;
-			}
-			JWTAlgorithm expectedJWTAlgorithm = JWTAlgorithmUtils.getJWTAlgorithm(expectedAlgorithm, this.error);
-			if (this.HasError())
-			{
-				return false;
-			}
-
-			/***Hack to support 1024 RSA key lengths - BEGIN***/
-			AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["RS256"] = 1024;
-			AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["RS512"] = 1024;
-			AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["RS384"] = 1024;
-			/***Hack to support 1024 RSA key lengths - END***/
+                res = getTokenPart(token, "id");
+            }
+            catch (Exception e)
+            {
+                this.error.setError("JW011", e.Message);
+                return "";
+            }
+            return res;
+        }
 
 
-			JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
-			JwtSecurityToken jwtToken = new JwtSecurityToken(token);
-			if(isRevoqued(jwtToken, options))
-			{
-				return false;
-			}
-			if(verifyRegClaims)
-			{
-				if(!validateRegisteredClaims(jwtToken, options))
-				{
-					return false;
-				}
-			}
-			if(verifyClaims)
-			{
-				if(!verifyPrivateClaims(jwtToken, privateClaims, options) || !VerifyHeader(jwtToken, options))
-				{
-					return false;
-				}
-			}
-			//if validates all registered claims and it is not on revocation list
-			TokenValidationParameters parms = new TokenValidationParameters();
-			parms.ValidateLifetime = false;
-			parms.ValidateAudience = false;
-			parms.ValidateIssuer = false;
-			parms.ValidateActor = false;
-			JWTAlgorithm alg = JWTAlgorithmUtils.getJWTAlgorithm_forVerification(jwtToken.Header.Alg, this.error);
-			if (this.HasError())
-			{
-				return false;
-			}
-			if (JWTAlgorithmUtils.getJWTAlgorithm(jwtToken.Header.Alg, this.error) != expectedJWTAlgorithm || this.HasError())
-			{
-				this.error.setError("JW008", "Expected algorithm does not match token algorithm");
-				return false;
-			}
-			SecurityKey genericKey = null;
-			if (JWTAlgorithmUtils.isPrivate(alg))
-			{
+        /******** EXTERNAL OBJECT PUBLIC METHODS - END ********/
+
+        [SecuritySafeCritical]
+        private bool DoVerify(string token, string expectedAlgorithm, PrivateClaims privateClaims, JWTOptions options, bool verifyClaims, bool verifyRegClaims)
+        {
+            this.error.cleanError();
+            if (options.HasError())
+            {
+                this.error = options.GetError();
+                return false;
+            }
+            JWTAlgorithm expectedJWTAlgorithm = JWTAlgorithmUtils.getJWTAlgorithm(expectedAlgorithm, this.error);
+            if (this.HasError())
+            {
+                return false;
+            }
+
+            /***Hack to support 1024 RSA key lengths - BEGIN***/
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["RS256"] = 1024;
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["RS512"] = 1024;
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["RS384"] = 1024;
+            /***Hack to support 1024 RSA key lengths - END***/
+
+            /***Hack to support 192 ECDSA key lengths - BEGIN***/
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["EcdsaSha256"] = 112;
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["EcdsaSha512"] = 112;
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["EcdsaSha384"] = 112;
+            /***Hack to support 192 ECDSA key lengths - END***/
+
+            /***Hack to support 192 ECDSA key lengths - BEGIN***/
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["ES256"] = 112;
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["ES512"] = 112;
+            AsymmetricSignatureProvider.DefaultMinimumAsymmetricKeySizeInBitsForVerifyingMap["ES384"] = 112;
+            /***Hack to support 192 ECDSA key lengths - END***/
 
 
-				CertificateX509 cert = options.GetCertificate();
-				if (cert.HasError())
-				{
-					this.error = cert.GetError();
-					return false;
-				}
-				RsaSecurityKey publicKey = new RsaSecurityKey((RSA)cert.getPublicKeyXML());
-				genericKey = publicKey;
-			}
-			else
-			{
-				SymmetricSecurityKey symKey = new SymmetricSecurityKey(options.getSecret());
-				genericKey = symKey;
-			}
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            JwtSecurityToken jwtToken = new JwtSecurityToken(token);
+            if (isRevoqued(jwtToken, options))
+            {
+                return false;
+            }
+            if (verifyRegClaims)
+            {
+                if (!validateRegisteredClaims(jwtToken, options))
+                {
+                    return false;
+                }
+            }
+            if (verifyClaims)
+            {
+                if (!verifyPrivateClaims(jwtToken, privateClaims, options) || !VerifyHeader(jwtToken, options))
+                {
+                    return false;
+                }
+            }
+            //if validates all registered claims and it is not on revocation list
+            TokenValidationParameters parms = new TokenValidationParameters();
+            parms.ValidateLifetime = false;
+            parms.ValidateAudience = false;
+            parms.ValidateIssuer = false;
+            parms.ValidateActor = false;
+            JWTAlgorithm alg = JWTAlgorithmUtils.getJWTAlgorithm_forVerification(jwtToken.Header.Alg, this.error);
+            if (this.HasError())
+            {
+                return false;
+            }
+            if (JWTAlgorithmUtils.getJWTAlgorithm(jwtToken.Header.Alg, this.error) != expectedJWTAlgorithm || this.HasError())
+            {
+                this.error.setError("JW008", "Expected algorithm does not match token algorithm");
+                return false;
+            }
+            SecurityKey genericKey = null;
+            if (JWTAlgorithmUtils.isPrivate(alg))
+            {
 
-			SigningCredentials signingCredentials = JWTAlgorithmUtils.getSigningCredentials(alg, genericKey, this.error);
-			parms.IssuerSigningKey = genericKey;
-			SecurityToken validatedToken;
-			try
-			{
-				handler.ValidateToken(token, parms, out validatedToken);
-			}
-			catch (Exception e)
-			{
-				this.error.setError("JW004", e.Message);
 
-				return false;
-			}
-			return true;
+                CertificateX509 cert = options.GetCertificate();
+                if (cert.HasError())
+                {
+                    this.error = cert.GetError();
+                    return false;
+                }
+                if (SecurityUtils.compareStrings(cert.getPublicKeyAlgorithm(), "RSA"))
+                {
+					try { 
+                    genericKey = new RsaSecurityKey((RSA)cert.getPublicKeyJWT());
+                    }
+                    catch (Exception)
+                    {
+                        this.error = cert.GetError();
+                        return false;
+                    }
 
-			
+                }
+                else if (SecurityUtils.compareStrings(cert.getPublicKeyAlgorithm(), "ECDSA"))
+                {
+                    try
+                    {
+                        genericKey = new ECDsaSecurityKey((ECDsa)cert.getPublicKeyJWT());
+                    }
+                    catch (Exception)
+                    {
+                        this.error = cert.GetError();
+                        return false;
+                    }
 
-		}
+                }
+                else
+                {
+                    this.error.setError("JW013", "Not recognized key algorithm");
+                    return false;
+                }
+
+            }
+            else
+            {
+                SymmetricSecurityKey symKey = new SymmetricSecurityKey(options.getSecret());
+                genericKey = symKey;
+            }
+            genericKey.KeyId = "256";
+            
+            SigningCredentials signingCredentials = JWTAlgorithmUtils.getSigningCredentials(alg, genericKey, this.error);
+            parms.IssuerSigningKey = genericKey;
+            SecurityToken validatedToken;
+            try
+            {
+                handler.ValidateToken(token, parms, out validatedToken);
+            }
+            catch (Exception e)
+            {
+                this.error.setError("JW004", e.Message);
+
+                return false;
+            }
+            return true;
 
 
-		private JwtPayload doBuildPayload(PrivateClaims privateClaims, JWTOptions options)
+
+        }
+
+
+        private JwtPayload doBuildPayload(PrivateClaims privateClaims, JWTOptions options)
         {
             JwtPayload payload = new JwtPayload();
             // ****START BUILD PAYLOAD****//
@@ -299,7 +379,7 @@ namespace GeneXusJWT.GenexusJWT
                 }
                 else
                 {
-                    
+
                     System.Security.Claims.Claim netPrivateClaim = new System.Security.Claims.Claim(privateClaim.getKey(), privateClaim.getValue());
 
                     payload.AddClaim(netPrivateClaim);
@@ -327,17 +407,17 @@ namespace GeneXusJWT.GenexusJWT
                 {
                     System.Security.Claims.Claim netRegisteredClaim;
                     if (RegisteredClaimUtils.isTimeValidatingClaim(registeredClaim.getKey()))
-                        {
+                    {
 
                         netRegisteredClaim = new System.Security.Claims.Claim(registeredClaim.getKey(), registeredClaim.getValue(), System.Security.Claims.ClaimValueTypes.Integer32);
                     }
-                    else 
+                    else
                     {
 
                         netRegisteredClaim = new System.Security.Claims.Claim(registeredClaim.getKey(), registeredClaim.getValue());
                     }
 
-                        payload.AddClaim(netRegisteredClaim);
+                    payload.AddClaim(netRegisteredClaim);
                 }
             }
             // ****END BUILD PAYLOAD****//
@@ -514,7 +594,7 @@ namespace GeneXusJWT.GenexusJWT
             {
                 return true;
             }
-            if(parameters.IsEmpty() && claimsNumber > 2)
+            if (parameters.IsEmpty() && claimsNumber > 2)
             {
                 return false;
             }

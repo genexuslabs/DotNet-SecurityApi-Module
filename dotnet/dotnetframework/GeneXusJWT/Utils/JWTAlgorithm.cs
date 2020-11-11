@@ -10,7 +10,7 @@ namespace GeneXusJWT.GenexusJWTUtils
     [SecuritySafeCritical]
     public enum JWTAlgorithm
     {
-        NONE, HS256, HS512, RS256, RS512,
+        NONE, HS256, HS512, RS256, RS512, ES256, ES384, ES512
     }
 
     [SecuritySafeCritical]
@@ -28,6 +28,13 @@ namespace GeneXusJWT.GenexusJWTUtils
                     return "RS256";
                 case JWTAlgorithm.RS512:
                     return "RS512";
+                case JWTAlgorithm.ES256:
+                    return "ES256";
+                case JWTAlgorithm.ES384:
+                    return "ES384";
+                case JWTAlgorithm.ES512:
+                    return "ES512";
+
                 default:
                     error.setError("JA001", "Unrecognized algorithm");
                     return "Unrecognized algorithm";
@@ -46,6 +53,13 @@ namespace GeneXusJWT.GenexusJWTUtils
                     return JWTAlgorithm.RS256;
                 case "RS512":
                     return JWTAlgorithm.RS512;
+                case "ES256":
+                    return JWTAlgorithm.ES256;
+                case "ES384":
+                    return JWTAlgorithm.ES384;
+                case "ES512":
+                    return JWTAlgorithm.ES512;
+
                 default:
                     error.setError("JA002", "Unrecognized algorithm");
                     return JWTAlgorithm.NONE;
@@ -64,6 +78,12 @@ namespace GeneXusJWT.GenexusJWTUtils
                     return JWTAlgorithm.HS256;
                 case SecurityAlgorithms.HmacSha512:
                     return JWTAlgorithm.HS512;
+                case SecurityAlgorithms.EcdsaSha256:
+                    return JWTAlgorithm.ES256;
+                case SecurityAlgorithms.EcdsaSha384:
+                    return JWTAlgorithm.ES384;
+                case SecurityAlgorithms.EcdsaSha512:
+                    return JWTAlgorithm.ES512;
                 default:
                     error.setError("JA004", "Unrecognized algorithm");
                     return JWTAlgorithm.NONE;
@@ -77,6 +97,10 @@ namespace GeneXusJWT.GenexusJWTUtils
             {
                 case JWTAlgorithm.RS256:
                 case JWTAlgorithm.RS512:
+                case JWTAlgorithm.ES256:
+                case JWTAlgorithm.ES384:
+                case JWTAlgorithm.ES512:
+
                     return true;
                 default:
                     return false;
@@ -95,13 +119,20 @@ namespace GeneXusJWT.GenexusJWTUtils
                     return new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
                 case JWTAlgorithm.RS512:
                     return new SigningCredentials(key, SecurityAlgorithms.RsaSha512);
+                case JWTAlgorithm.ES256:
+                    return new SigningCredentials(key, SecurityAlgorithms.EcdsaSha256);
+                case JWTAlgorithm.ES384:
+                    return new SigningCredentials(key, SecurityAlgorithms.EcdsaSha384);
+                case JWTAlgorithm.ES512:
+                    return new SigningCredentials(key, SecurityAlgorithms.EcdsaSha512);
+
                 default:
                     error.setError("JA003", "Unknown algorithm");
                     return null;
             }
         }
 
-        
+
 
     }
 }
