@@ -42,7 +42,7 @@ This repository contains projects for .NET and .NET Core. It is organized as fol
 
 ## Requirements
 Visual Studio 2019 or dotnet SDK >= 3.1 
-- .Net framework 4.6 
+- .Net framework 4.7 since GeneXus 17 Upgrade 1 & .Net Framework 4.6 for previous versions.
 - .Net framework 4.7 is required for GeneXus SFTP Module
 
 # Instructions
