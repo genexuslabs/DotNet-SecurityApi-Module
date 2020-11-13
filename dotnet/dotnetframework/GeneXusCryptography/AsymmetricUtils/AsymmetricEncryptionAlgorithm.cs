@@ -34,7 +34,7 @@ namespace GeneXusCryptography.AsymmetricUtils
         /// <returns>AsymmetricEncryptionAlgorithm enum representation</returns>
         public static AsymmetricEncryptionAlgorithm getAsymmetricEncryptionAlgorithm(string asymmetricEncryptionAlgorithm, Error error)
         {
-            switch (asymmetricEncryptionAlgorithm)
+            switch (asymmetricEncryptionAlgorithm.ToUpper().Trim())
             {
                 case "RSA":
                     return AsymmetricEncryptionAlgorithm.RSA;

@@ -33,7 +33,7 @@ namespace GeneXusCryptography.SymmetricUtils
         /// <returns>SymmetricBlockPadding enum representation</returns>
         public static SymmetricBlockPadding getSymmetricBlockPadding(string symmetricBlockPadding, Error error)
         {
-            switch (symmetricBlockPadding)
+            switch (symmetricBlockPadding.ToUpper().Trim())
             {
                 case "NOPADDING":
                     return SymmetricBlockPadding.NOPADDING;

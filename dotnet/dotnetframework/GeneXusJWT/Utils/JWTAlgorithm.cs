@@ -43,7 +43,7 @@ namespace GeneXusJWT.GenexusJWTUtils
 
         public static JWTAlgorithm getJWTAlgorithm(string jWTAlgorithm, Error error)
         {
-            switch (jWTAlgorithm)
+            switch (jWTAlgorithm.ToUpper().Trim())
             {
                 case "HS256":
                     return JWTAlgorithm.HS256;

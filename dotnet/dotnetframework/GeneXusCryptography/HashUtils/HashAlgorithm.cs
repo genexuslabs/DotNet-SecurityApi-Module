@@ -35,7 +35,7 @@ namespace GeneXusCryptography.HashUtils
         /// <returns>HashAlgorithm enum representation</returns>
         public static HashAlgorithm getHashAlgorithm(string hashAlgorithm, Error error)
         {
-            switch (hashAlgorithm)
+            switch (hashAlgorithm.ToUpper().Trim())
             {
                 case "MD5":
                     return HashAlgorithm.MD5;

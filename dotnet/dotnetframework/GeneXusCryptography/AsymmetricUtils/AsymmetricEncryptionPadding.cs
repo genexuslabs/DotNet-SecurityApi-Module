@@ -32,7 +32,7 @@ namespace GeneXusCryptography.AsymmetricUtils
         /// <returns>AsymmetricEncryptionPadding enum representation</returns>
         public static AsymmetricEncryptionPadding getAsymmetricEncryptionPadding(string asymmetricEncryptionPadding, Error error)
         {
-            switch (asymmetricEncryptionPadding)
+            switch (asymmetricEncryptionPadding.ToUpper().Trim())
             {
                 case "NOPADDING":
                     return AsymmetricEncryptionPadding.NOPADDING;

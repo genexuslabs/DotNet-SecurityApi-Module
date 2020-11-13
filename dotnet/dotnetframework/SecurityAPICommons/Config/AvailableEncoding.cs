@@ -21,7 +21,7 @@ namespace SecurityAPICommons.Config
         {
             encoding = encoding.Replace("-", "_");
             encoding = encoding.ToUpper();
-            switch (encoding)
+            switch (encoding.Trim())
             {
                 case "UTF_8":
                     return AvailableEncoding.UTF_8;

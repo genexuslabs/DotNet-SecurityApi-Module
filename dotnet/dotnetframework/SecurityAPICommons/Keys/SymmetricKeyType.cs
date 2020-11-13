@@ -32,7 +32,7 @@ namespace SecurityAPICommons.Keys
         /// <returns>SymmetricKeyType enum representation</returns>
         public static SymmetricKeyType getSymmetricKeyType(string symmetricKeyType, Error error)
         {
-            switch (symmetricKeyType)
+            switch (symmetricKeyType.ToUpper().Trim())
             {
                 case "GENERICRANDOM":
                     return SymmetricKeyType.GENERICRANDOM;

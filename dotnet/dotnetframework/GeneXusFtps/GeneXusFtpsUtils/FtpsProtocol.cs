@@ -18,7 +18,7 @@ namespace GeneXusFtps.GeneXusFtpsUtils
 		[SecuritySafeCritical]
 		public static FtpsProtocol getFtpsProtocol(String ftpsProtocol, Error error)
 		{
-			switch (ftpsProtocol.ToUpper().Trim())
+			switch (ftpsProtocol.Trim())
 			{
 				case "TLS1_0":
 					return FtpsProtocol.TLS1_0;

@@ -34,7 +34,7 @@ namespace GeneXusCryptography.AsymmetricUtils
         /// <returns>AsymmetricSigningAlgorithm enum representation</returns>
         public static AsymmetricSigningAlgorithm getAsymmetricSigningAlgorithm(string asymmetricSigningAlgorithm, Error error)
         {
-            switch (asymmetricSigningAlgorithm)
+            switch (asymmetricSigningAlgorithm.ToUpper().Trim())
             {
                 case "RSA":
                     return AsymmetricSigningAlgorithm.RSA;
