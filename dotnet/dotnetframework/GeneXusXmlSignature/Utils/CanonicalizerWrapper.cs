@@ -17,7 +17,7 @@ namespace GeneXusXmlSignature.GeneXusUtils
     {
         public static CanonicalizerWrapper getCanonicalizerWrapper(string canonicalizerWrapper, Error error)
         {
-            switch (canonicalizerWrapper)
+            switch (canonicalizerWrapper.Trim())
             {
                 case "C14n_WITH_COMMENTS":
                     return CanonicalizerWrapper.ALGO_ID_C14N_WITH_COMMENTS;

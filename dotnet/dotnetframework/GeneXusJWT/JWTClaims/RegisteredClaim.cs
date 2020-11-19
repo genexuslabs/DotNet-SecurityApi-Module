@@ -44,7 +44,7 @@ namespace GeneXusJWT.GenexusJWTClaims
 
         public static RegisteredClaim getRegisteredClaim(string registeredClaim, Error error)
         {
-            switch (registeredClaim)
+            switch (registeredClaim.Trim())
             {
                 case "iss":
                     return RegisteredClaim.iss;
@@ -68,7 +68,7 @@ namespace GeneXusJWT.GenexusJWTClaims
 
         public static bool exists(string value)
         {
-            switch (value)
+            switch (value.Trim())
             {
                 case "iss":
                 case "exp":
@@ -85,7 +85,7 @@ namespace GeneXusJWT.GenexusJWTClaims
 
         public static bool isTimeValidatingClaim(string claimKey)
         {
-            switch (claimKey)
+            switch (claimKey.Trim())
             {
                 case "iat":
                 case "exp":

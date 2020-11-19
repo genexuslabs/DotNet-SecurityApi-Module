@@ -17,7 +17,7 @@ namespace GeneXusXmlSignature.GeneXusUtils
     {
         public static TransformsWrapper getTransformsWrapper(string transformsWrapper, Error error)
         {
-            switch (transformsWrapper)
+            switch (transformsWrapper.ToUpper().Trim())
             {
                 case "ENVELOPED":
                     return TransformsWrapper.ENVELOPED;

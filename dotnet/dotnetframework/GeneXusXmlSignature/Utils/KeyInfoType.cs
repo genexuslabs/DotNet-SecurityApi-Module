@@ -17,7 +17,7 @@ namespace GeneXusXmlSignature.GeneXusUtils
     {
         public static KeyInfoType getKeyInfoType(string keyInfoType, Error error)
         {
-            switch (keyInfoType)
+            switch (keyInfoType.Trim())
             {
                 case "NONE":
                     return KeyInfoType.NONE;

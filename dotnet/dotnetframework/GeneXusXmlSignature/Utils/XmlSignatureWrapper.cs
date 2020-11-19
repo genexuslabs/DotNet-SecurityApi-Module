@@ -17,7 +17,7 @@ namespace GeneXusXmlSignature.GeneXusUtils
     {
         public static XmlSignatureWrapper getXMLSignatureWrapper(string xMLSignatureWrapper, Error error)
         {
-            switch (xMLSignatureWrapper)
+            switch (xMLSignatureWrapper.ToUpper().Trim())
             {
                 case "RSA_SHA1":
                     return XmlSignatureWrapper.RSA_SHA1;

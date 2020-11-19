@@ -33,7 +33,7 @@ namespace GeneXusCryptography.SymmetricUtils
         /// <returns>SymmetricBlockAlgorithm enum representaton</returns>
         public static SymmetricBlockAlgorithm getSymmetricBlockAlgorithm(string symmetricBlockAlgorithm, Error error)
         {
-            switch (symmetricBlockAlgorithm)
+            switch (symmetricBlockAlgorithm.ToUpper().Trim())
             {
                 case "AES":
                     return SymmetricBlockAlgorithm.AES;

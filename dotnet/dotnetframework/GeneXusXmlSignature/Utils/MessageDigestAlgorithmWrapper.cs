@@ -18,7 +18,7 @@ namespace GeneXusXmlSignature.GeneXusUtils
         public static MessageDigestAlgorithmWrapper getMessageDigestAlgorithmWrapper(string messageDigestAlgorithmWrapper,
         Error error)
         {
-            switch (messageDigestAlgorithmWrapper)
+            switch (messageDigestAlgorithmWrapper.ToUpper().Trim())
             {
                 case "SHA1":
                     return MessageDigestAlgorithmWrapper.SHA1;

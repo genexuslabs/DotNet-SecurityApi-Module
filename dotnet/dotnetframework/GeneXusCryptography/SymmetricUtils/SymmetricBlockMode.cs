@@ -34,7 +34,7 @@ namespace GeneXusCryptography.SymmetricUtils
         /// <returns>SymmetricBlockMode enum representation</returns>
         public static SymmetricBlockMode getSymmetricBlockMode(string symmetricBlockMode, Error error)
         {
-            switch (symmetricBlockMode)
+            switch (symmetricBlockMode.ToUpper().Trim())
             {
                 case "ECB":
                     return SymmetricBlockMode.ECB;

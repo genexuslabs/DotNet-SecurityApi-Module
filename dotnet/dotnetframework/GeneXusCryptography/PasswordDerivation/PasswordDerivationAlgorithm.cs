@@ -32,7 +32,7 @@ namespace GeneXusCryptography.PasswordDerivation
         /// <returns>PasswordDerivationAlgorithm enum representation</returns>
         public static PasswordDerivationAlgorithm getPasswordDerivationAlgorithm(string passwordDerivationAlgorithm, Error error)
         {
-            switch (passwordDerivationAlgorithm)
+            switch (passwordDerivationAlgorithm.Trim())
             {
                 case "SCrypt":
                     return PasswordDerivationAlgorithm.SCrypt;

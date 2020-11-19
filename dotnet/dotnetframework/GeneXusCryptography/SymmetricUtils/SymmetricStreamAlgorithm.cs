@@ -33,7 +33,7 @@ namespace GeneXusCryptography.SymmetricUtils
         /// <returns>SymmetricStreamAlgorithm enum representation</returns>
         public static SymmetricStreamAlgorithm getSymmetricStreamAlgorithm(String symmetricStreamAlgorithm, Error error)
         {
-            switch (symmetricStreamAlgorithm)
+            switch (symmetricStreamAlgorithm.ToUpper().Trim())
             {
                 case "RC4":
                     return SymmetricStreamAlgorithm.RC4;
