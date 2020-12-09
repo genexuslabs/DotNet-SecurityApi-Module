@@ -50,8 +50,13 @@
     <Compile Include="AsymmetricUtils\AsymmetricSigningAlgorithm.cs" />
     <Compile Include="Asymmetric\AsymmetricCipher.cs" />
     <Compile Include="Asymmetric\AsymmetricSigner.cs" />
+    <Compile Include="ChecksumUtils\ChecksumAlgorithm.cs" />
+    <Compile Include="ChecksumUtils\ChecksumInputType.cs" />
+    <Compile Include="ChecksumUtils\CRCParameters.cs" />
+    <Compile Include="Checksum\ChecksumCreator.cs" />
     <Compile Include="Commons\IAsymmetricCipherObject.cs" />
     <Compile Include="Commons\IAsymmetricSignerObject.cs" />
+    <Compile Include="Commons\IChecksumObject.cs" />
     <Compile Include="Commons\ICmacObject.cs" />
     <Compile Include="Commons\IHashObject.cs" />
     <Compile Include="Commons\IHmacObject.cs" />
