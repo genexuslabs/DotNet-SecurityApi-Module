@@ -10,7 +10,7 @@ namespace GeneXusJWT.GenexusJWTClaims
         private List<Claim> _claims;
 
         [SecuritySafeCritical]
-        public bool setClaim(string key, string value)
+        public bool setClaim(string key, object value)
         {
             return base.setClaim(key, value, new Error());
         }

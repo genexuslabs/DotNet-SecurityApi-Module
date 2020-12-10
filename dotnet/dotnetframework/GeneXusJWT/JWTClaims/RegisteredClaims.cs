@@ -88,7 +88,7 @@ namespace GeneXusJWT.GenexusJWTClaims
         }
 
 
-        public string getClaimValue(string key, Error error)
+        public object getClaimValue(string key, Error error)
         {
             if (RegisteredClaimUtils.exists(key))
             {
