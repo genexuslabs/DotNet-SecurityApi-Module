@@ -20,8 +20,13 @@
     <Compile Include="..\..\dotnetframework\GeneXusCryptography\AsymmetricUtils\AsymmetricSigningAlgorithm.cs" Link="AsymmetricUtils\AsymmetricSigningAlgorithm.cs" />
     <Compile Include="..\..\dotnetframework\GeneXusCryptography\Asymmetric\AsymmetricCipher.cs" Link="Asymmetric\AsymmetricCipher.cs" />
     <Compile Include="..\..\dotnetframework\GeneXusCryptography\Asymmetric\AsymmetricSigner.cs" Link="Asymmetric\AsymmetricSigner.cs" />
+    <Compile Include="..\..\dotnetframework\GeneXusCryptography\ChecksumUtils\ChecksumAlgorithm.cs" Link="ChecksumUtils\ChecksumAlgorithm.cs" />
+    <Compile Include="..\..\dotnetframework\GeneXusCryptography\ChecksumUtils\ChecksumInputType.cs" Link="ChecksumUtils\ChecksumInputType.cs" />
+    <Compile Include="..\..\dotnetframework\GeneXusCryptography\ChecksumUtils\CRCParameters.cs" Link="ChecksumUtils\CRCParameters.cs" />
+    <Compile Include="..\..\dotnetframework\GeneXusCryptography\Checksum\ChecksumCreator.cs" Link="Checksum\ChecksumCreator.cs" />
     <Compile Include="..\..\dotnetframework\GeneXusCryptography\Commons\IAsymmetricCipherObject.cs" Link="Commons\IAsymmetricCipherObject.cs" />
     <Compile Include="..\..\dotnetframework\GeneXusCryptography\Commons\IAsymmetricSignerObject.cs" Link="Commons\IAsymmetricSignerObject.cs" />
+    <Compile Include="..\..\dotnetframework\GeneXusCryptography\Commons\IChecksumObject.cs" Link="Commons\IChecksumObject.cs" />
     <Compile Include="..\..\dotnetframework\GeneXusCryptography\Commons\ICmacObject.cs" Link="Commons\ICmacObject.cs" />
     <Compile Include="..\..\dotnetframework\GeneXusCryptography\Commons\IHashObject.cs" Link="Commons\IHashObject.cs" />
     <Compile Include="..\..\dotnetframework\GeneXusCryptography\Commons\IHmacObject.cs" Link="Commons\IHmacObject.cs" />
@@ -59,6 +64,8 @@
     <Folder Include="Hash\" />
     <Folder Include="HashUtils\" />
     <Folder Include="Mac\" />
+    <Folder Include="Checksum\" />
+    <Folder Include="ChecksumUtils\" />
     <Folder Include="SymmetricUtils\" />
     <Folder Include="Symmetric\" />
   </ItemGroup>
