@@ -402,7 +402,7 @@ namespace GeneXusJWT.GenexusJWT
                     }else if (obj.GetType() == typeof(bool))
 					{
                         bool value = (bool)obj;
-                        netPrivateClaim = new System.Security.Claims.Claim(privateClaim.getKey(), value.ToString(), System.Security.Claims.ClaimValueTypes.Integer);
+                        netPrivateClaim = new System.Security.Claims.Claim(privateClaim.getKey(), value.ToString(), System.Security.Claims.ClaimValueTypes.Boolean);
 					}
 					else
 					{
@@ -598,9 +598,8 @@ namespace GeneXusJWT.GenexusJWT
                             return false;
                         }
                     }else if(opt == typeof(bool))
-					{
-                        string ots = (string)ot;         
-                        if(Convert.ToBoolean(op) != Convert.ToBoolean(ots.ToLower()))
+					{      
+                        if(Convert.ToBoolean(op) != Convert.ToBoolean(ot))
 						{
                             return false;
 						}
