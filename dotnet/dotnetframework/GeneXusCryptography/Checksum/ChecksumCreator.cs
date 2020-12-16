@@ -44,7 +44,8 @@ namespace GeneXusCryptography.Checksum
 			{
 				return false;
 			}
-			return SecurityUtils.compareStrings(result, digest);
+			string resCompare = digest.ToUpper().Contains("0X") ? "0X" + result : result;
+			return SecurityUtils.compareStrings(resCompare, digest);
 		}
 
 		/********EXTERNAL OBJECT PUBLIC METHODS  - END ********/
