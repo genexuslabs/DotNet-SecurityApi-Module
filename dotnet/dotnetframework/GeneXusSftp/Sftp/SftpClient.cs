@@ -144,7 +144,9 @@ namespace Sftp.GeneXusSftp
 
             string rDir = "";
             bool control = false;
-			try
+            string dirRemote = this.channel.WorkingDirectory;
+
+            try
 			{
                 control = this.channel.WorkingDirectory.Contains("/");
 
@@ -156,21 +158,40 @@ namespace Sftp.GeneXusSftp
             if (control)
             {
                 remoteDir = $"/{remoteDir.Replace(@"\", "/")}";
-                rDir += this.channel.WorkingDirectory + remoteDir + "/" + GetFileNamne(localPath);
+                rDir = SecurityUtils.compareStrings(dirRemote, "/") ? dirRemote : dirRemote + "/";
+                //rDir += this.channel.WorkingDirectory + remoteDir + "/" + GetFileNamne(localPath);
             }
             else
             {
-                rDir = this.channel.WorkingDirectory + remoteDir + "\\" + GetFileNamne(localPath);
+                rDir = SecurityUtils.compareStrings(dirRemote, "\\") ? dirRemote : dirRemote + "\\";
+               // rDir = this.channel.WorkingDirectory + remoteDir + "\\" + GetFileNamne(localPath);
             }
+            rDir += GetFileNamne(localPath);
             try
             {
                 this.channel.UploadFile(stream, rDir, true, null);
             }
             catch (Exception e)
             {
-                this.error.setError("SF012", e.Message);
+                if(SecurityUtils.compareStrings(remoteDir, "/") || SecurityUtils.compareStrings(remoteDir, "\\"))
+				{
+                    try
+                    {
+                        this.channel.UploadFile(stream, GetFileNamne(localPath), true, null);
+                    }
+                    catch (Exception s)
+                    {
+                        this.error.setError("SF012", s.Message);
+                        return false;
+                    }
+				}
+				else
+				{
+                    this.error.setError("SF013", e.Message);
+                    return false;
+                }
 
-                return false;
+
             }
 
             return true;
