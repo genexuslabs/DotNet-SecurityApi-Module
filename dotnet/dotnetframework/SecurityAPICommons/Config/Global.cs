@@ -1,8 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 
 
-[assembly: InternalsVisibleTo("SecurityAPITestNetCore")]
-[assembly: InternalsVisibleTo("SecurityAPITest")]
+/*[assembly: InternalsVisibleTo("SecurityAPITestNetCore")]
+[assembly: InternalsVisibleTo("SecurityAPITest")]*/
 namespace SecurityAPICommons.Config
 {
 

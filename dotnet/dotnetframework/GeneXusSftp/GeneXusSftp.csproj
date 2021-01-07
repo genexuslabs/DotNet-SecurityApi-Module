@@ -31,6 +31,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\resources\key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Neon.SSH.NET, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\Neon.SSH.NET.1.0.4\lib\netstandard2.0\Neon.SSH.NET.dll</HintPath>
@@ -54,6 +60,9 @@
     <Compile Include="Utils\KnownHostStore.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\resources\key.snk">
+      <Link>key.snk</Link>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
