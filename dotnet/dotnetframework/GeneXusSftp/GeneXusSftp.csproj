@@ -32,7 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>..\..\resources\key.snk</AssemblyOriginatorKeyFile>
@@ -66,11 +66,6 @@
       <Project>{be9a040c-de9a-490a-b02c-9e1d97b30b21}</Project>
       <Name>SecurityAPICommons</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Neon.SSH.NET">
-      <Version>1.0.4</Version>
-    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
