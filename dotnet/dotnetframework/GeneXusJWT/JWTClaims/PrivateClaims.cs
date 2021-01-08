@@ -16,6 +16,30 @@ namespace GeneXusJWT.GenexusJWTClaims
         }
 
         [SecuritySafeCritical]
+        public bool setBooleanClaim(string key, bool value)
+        {
+            return base.setClaim(key, value, new Error());
+        }
+
+        [SecuritySafeCritical]
+        public bool setNumericClaim(string key, int value)
+        {
+            return base.setClaim(key, value, new Error());
+        }
+
+        [SecuritySafeCritical]
+        public bool setDateClaim(string key, long value)
+        {
+            return base.setClaim(key, value, new Error());
+        }
+
+        [SecuritySafeCritical]
+        public bool setDoubleClaim(string key, double value)
+        {
+            return base.setClaim(key, value, new Error());
+        }
+
+        [SecuritySafeCritical]
         public bool setClaim(string key, PrivateClaims value)
         {
             return base.setClaim(key, value, new Error());
