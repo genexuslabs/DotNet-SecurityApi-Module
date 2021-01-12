@@ -32,25 +32,35 @@ namespace SecurityAPICommons.Keys
             get { return hasPrivateKey; }
         }
         private string privateKeyAlgorithm;
+        private string encryptionPassword;
 
         [SecuritySafeCritical]
         public PrivateKeyManager() : base()
         {
             this.hasPrivateKey = false;
+            this.encryptionPassword = null;
 
         }
 
         /******** EXTERNAL OBJECT PUBLIC METHODS - BEGIN ********/
 
         [SecuritySafeCritical]
-        public bool Load(String privateKeyPath)
+        public bool Load(string privateKeyPath)
         {
             return LoadPKCS12(privateKeyPath, "", "");
         }
 
+        [SecuritySafeCritical]
+        public bool LoadEncrypted(string privateKeyPath, string encryptionPassword)
+		{
+            this.encryptionPassword = encryptionPassword;
+            return LoadPKCS12(privateKeyPath, "", "");
+
+        }
+
 
         [SecuritySafeCritical]
-        public bool LoadPKCS12(String privateKeyPath, String alias, String password)
+        public bool LoadPKCS12(string privateKeyPath, string alias, string password)
         {
             try
             {
@@ -353,7 +363,29 @@ namespace SecurityAPICommons.Keys
             bool flag = false;
             StreamReader streamReader = new StreamReader(path);
             PemReader pemReader = new PemReader(streamReader);
-            Object obj = pemReader.ReadObject();
+            Object obj = null;
+            try
+            {
+                obj = pemReader.ReadObject();
+            }catch(Exception)
+			{
+                if(this.encryptionPassword == null)
+				{
+                    this.error.setError("PK024", "Password for key decryption is empty");
+                    return false;
+				}
+                try
+                {
+                    StreamReader sReader = new StreamReader(path);
+                    PemReader pReader = new PemReader(sReader, new PasswordFinder(this.encryptionPassword));
+                    obj = pReader.ReadObject();
+                    closeReaders(sReader, pReader);
+                }catch(Exception ex)
+				{
+                    this.error.setError("PK023", ex.Message);
+                    return false;
+				}
+			}
             if (obj.GetType() == typeof(RsaPrivateCrtKeyParameters))
             {
                 AsymmetricKeyParameter asymKeyParm = (AsymmetricKeyParameter)obj;
@@ -530,7 +562,21 @@ namespace SecurityAPICommons.Keys
         }
 
 
+        private class PasswordFinder : IPasswordFinder
+        {
+            private string password;
 
+            public PasswordFinder(string password)
+            {
+                this.password = password;
+            }
+
+
+            public char[] GetPassword()
+            {
+                return this.password.ToCharArray();
+            }
+        }
 
 
     }
