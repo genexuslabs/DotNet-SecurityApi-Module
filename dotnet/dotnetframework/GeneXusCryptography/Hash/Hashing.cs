@@ -83,18 +83,22 @@ namespace GeneXusCryptography.Hash
             {
                 return null;
             }
-
-            byte[] inputAsBytes = null;
-            IDigest alg = createHash(hashAlgorithm);
-            if (alg == null)
-            {
-                return null;
-            }
             EncodingUtil eu = new EncodingUtil();
-            inputAsBytes = eu.getBytes(txtToHash);
+            byte[]  inputAsBytes = eu.getBytes(txtToHash);
             if (eu.GetError().existsError())
             {
                 this.error = eu.GetError();
+                return null;
+            }
+            return calculateHash(hashAlgorithm, inputAsBytes);
+        }
+
+        [SecuritySafeCritical]
+        public byte[] calculateHash(HashAlgorithm hashAlgorithm, byte[] inputAsBytes)
+        {
+            IDigest alg = createHash(hashAlgorithm);
+            if (alg == null)
+            {
                 return null;
             }
             byte[] retValue = new byte[alg.GetDigestSize()];
@@ -106,12 +110,12 @@ namespace GeneXusCryptography.Hash
             return retValue;
         }
 
-        /// <summary>
-        /// Build the hash engine
-        /// </summary>
-        /// <param name="hashAlgorithm">HashAlgorithm enum, algorithm name</param>
-        /// <returns>IDigest algorithm instantiated class</returns>
-        internal IDigest createHash(HashAlgorithm hashAlgorithm)
+            /// <summary>
+            /// Build the hash engine
+            /// </summary>
+            /// <param name="hashAlgorithm">HashAlgorithm enum, algorithm name</param>
+            /// <returns>IDigest algorithm instantiated class</returns>
+            internal IDigest createHash(HashAlgorithm hashAlgorithm)
         {
             switch (hashAlgorithm)
             {

@@ -33,7 +33,7 @@ namespace GeneXusJWT.GenexusJWTClaims
         }
 
         [SecuritySafeCritical]
-        public string getClaimValue(string key, Error error)
+        public object getClaimValue(string key, Error error)
         {
             for (int i = 0; i < _claims.Count; i++)
             {

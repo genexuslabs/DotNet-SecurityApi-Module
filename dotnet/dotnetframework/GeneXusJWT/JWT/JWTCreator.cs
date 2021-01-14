@@ -377,10 +377,39 @@ namespace GeneXusJWT.GenexusJWT
 
                     payload.Add(privateClaim.getKey(), privateClaim.getNestedClaims().getNestedMap());
                 }
-                else
+                else 
                 {
+                    System.Security.Claims.Claim netPrivateClaim = null;
+                    object obj = privateClaim.getValue();
+                    if (obj.GetType() == typeof(string))
+                    {
+                        netPrivateClaim = new System.Security.Claims.Claim(privateClaim.getKey(), (string)privateClaim.getValue());
+                    }
+                    else if (obj.GetType() == typeof(int))
+                    {
+                        int value = (int)obj;
+                        netPrivateClaim = new System.Security.Claims.Claim(privateClaim.getKey(), value.ToString(), System.Security.Claims.ClaimValueTypes.Integer32);
+                    }
+                    else if (obj.GetType() == typeof(long))
+                    {
+                        long value = (long)obj;
+                        netPrivateClaim = new System.Security.Claims.Claim(privateClaim.getKey(), value.ToString(), System.Security.Claims.ClaimValueTypes.Integer64);
+                    }
+                    else if (obj.GetType() == typeof(double))
+                    {
+                        double value = (double)obj;
+                        netPrivateClaim = new System.Security.Claims.Claim(privateClaim.getKey(), value.ToString(), System.Security.Claims.ClaimValueTypes.Double);
+                    }else if (obj.GetType() == typeof(bool))
+					{
+                        bool value = (bool)obj;
+                        netPrivateClaim = new System.Security.Claims.Claim(privateClaim.getKey(), value.ToString(), System.Security.Claims.ClaimValueTypes.Boolean);
+					}
+					else
+					{
+                        this.error.setError("JW012", "Unrecognized data type");
+					}
 
-                    System.Security.Claims.Claim netPrivateClaim = new System.Security.Claims.Claim(privateClaim.getKey(), privateClaim.getValue());
+                    //System.Security.Claims.Claim netPrivateClaim = new System.Security.Claims.Claim(privateClaim.getKey(), privateClaim.getValue());
 
                     payload.AddClaim(netPrivateClaim);
                 }
@@ -393,7 +422,7 @@ namespace GeneXusJWT.GenexusJWT
                 List<Claim> publicC = publicClaims.getAllClaims();
                 foreach (Claim publicClaim in publicC)
                 {
-                    System.Security.Claims.Claim netPublicClaim = new System.Security.Claims.Claim(publicClaim.getKey(), publicClaim.getValue());
+                    System.Security.Claims.Claim netPublicClaim = new System.Security.Claims.Claim(publicClaim.getKey(), (string)publicClaim.getValue());
                     payload.AddClaim(netPublicClaim);
                 }
 
@@ -406,15 +435,16 @@ namespace GeneXusJWT.GenexusJWT
                 foreach (Claim registeredClaim in registeredC)
                 {
                     System.Security.Claims.Claim netRegisteredClaim;
+
                     if (RegisteredClaimUtils.isTimeValidatingClaim(registeredClaim.getKey()))
                     {
 
-                        netRegisteredClaim = new System.Security.Claims.Claim(registeredClaim.getKey(), registeredClaim.getValue(), System.Security.Claims.ClaimValueTypes.Integer32);
+                        netRegisteredClaim = new System.Security.Claims.Claim(registeredClaim.getKey(), (string)registeredClaim.getValue(), System.Security.Claims.ClaimValueTypes.Integer32);
                     }
                     else
                     {
 
-                        netRegisteredClaim = new System.Security.Claims.Claim(registeredClaim.getKey(), registeredClaim.getValue());
+                        netRegisteredClaim = new System.Security.Claims.Claim(registeredClaim.getKey(), (string)registeredClaim.getValue());
                     }
 
                     payload.AddClaim(netRegisteredClaim);
@@ -436,12 +466,12 @@ namespace GeneXusJWT.GenexusJWT
                 foreach (Claim registeredClaim in registeredC)
                 {
                     string registeredClaimKey = registeredClaim.getKey();
-                    string registeredClaimValue = registeredClaim.getValue();
+                    object registeredClaimValue = registeredClaim.getValue();
                     if (RegisteredClaimUtils.exists(registeredClaimKey))
                     {
                         if (!RegisteredClaimUtils.isTimeValidatingClaim(registeredClaimKey))
                         {
-                            if (!RegisteredClaimUtils.validateClaim(registeredClaimKey, registeredClaimValue, 0, jwtToken, this.error))
+                            if (!RegisteredClaimUtils.validateClaim(registeredClaimKey, (string)registeredClaimValue, 0, jwtToken, this.error))
                             {
                                 return false;
                             }
@@ -449,7 +479,8 @@ namespace GeneXusJWT.GenexusJWT
                         else
                         {
                             long customValidationTime = registeredClaims.getClaimCustomValidationTime(registeredClaimKey);
-                            if (!RegisteredClaimUtils.validateClaim(registeredClaimKey, registeredClaimValue, customValidationTime, jwtToken, this.error))
+                            //int value = (int)registeredClaimValue;
+                            if (!RegisteredClaimUtils.validateClaim(registeredClaimKey, (string)registeredClaimValue, customValidationTime, jwtToken, this.error))
                             {
                                 return false;
                             }
@@ -546,8 +577,12 @@ namespace GeneXusJWT.GenexusJWT
 
                     object op = pclaimMap[mapKey];
                     object ot = map[mapKey];
-
-                    if ((op.GetType() == typeof(string)) && (ot.GetType() == typeof(string)))
+                    Type opt = op.GetType();
+                    Type ott = ot.GetType();
+                    Type int16 = Type.GetType("System.Int16", false, true) ;
+                    Type int32 = Type.GetType("System.Int32", false, true);
+                    Type int64 = Type.GetType("System.Int64", false, true);
+                    if ((opt == typeof(string)) && (ott == typeof(string)))
                     {
 
                         if (!SecurityUtils.compareStrings(((string)op).Trim(), ((string)ot).Trim()))
@@ -555,21 +590,35 @@ namespace GeneXusJWT.GenexusJWT
                             return false;
                         }
                     }
-                    else if ((op.GetType() == typeof(Dictionary<string, object>)) && (ot.GetType() == typeof(JObject)))
+
+                    else if (((opt == int16) || (opt == int32) || (opt == int64)) && ((ott == int16) || (ott == int32) || (ott == int64)))
                     {
-
-
-                        bool flag = verifyNestedClaims((Dictionary<string, object>)op, ((JObject)ot).ToObject<Dictionary<string, object>>(),
-                                registeredClaims, publicClaims);
-                        if (!flag)
+                        if (Convert.ToInt32(op) != Convert.ToInt32(ot))
                         {
                             return false;
                         }
-                    }
-                    else
+                    }else if(opt == typeof(bool))
+					{      
+                        if(Convert.ToBoolean(op) != Convert.ToBoolean(ot))
+						{
+                            return false;
+						}
+					
+                   } else if ((op.GetType() == typeof(Dictionary<string, object>)) && (ot.GetType() == typeof(JObject)))
+                {
+
+
+                    bool flag = verifyNestedClaims((Dictionary<string, object>)op, ((JObject)ot).ToObject<Dictionary<string, object>>(),
+                            registeredClaims, publicClaims);
+                    if (!flag)
                     {
                         return false;
                     }
+                }
+                else
+                {
+                    return false;
+                }
                 }
             }
             return true;
