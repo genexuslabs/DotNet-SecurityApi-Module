@@ -1,12 +1,11 @@
 ﻿using System.Runtime.CompilerServices;
 
 
-[assembly: InternalsVisibleTo("SecurityAPITestNetCore")]
-[assembly: InternalsVisibleTo("SecurityAPITest")]
+
 namespace SecurityAPICommons.Config
 {
 
-    internal static class Global
+    public static class Global
     {
         private static string global_encoding = "UTF_8";
         public static string GLOBAL_ENCODING
@@ -24,7 +23,22 @@ namespace SecurityAPICommons.Config
                 global_encoding = value;
             }
         }
-
+        private static string global_keyContainerName = "";
+        public static string GLOBAL_KEY_COONTAINER_NAME
+        {
+            get
+            {
+                if (global_keyContainerName == null)
+                {
+                    return "UTF_8";
+                }
+                return global_keyContainerName;
+            }
+            set
+            {
+                global_keyContainerName = value;
+            }
+        }
 
 
     }
