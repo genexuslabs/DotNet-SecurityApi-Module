@@ -41,7 +41,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dotnetframework", "dotnetfr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecurityAPITest", "test\dotnetframework\SecurityAPITest\SecurityAPITest.csproj", "{9100025A-68E0-4618-B83C-4D626CB89DBB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecurityAPITestNetCore", "test\dotnetcore\SecurityAPITestNetCore\SecurityAPITestNetCore.csproj", "{44B8B2B6-0842-4018-A547-EF33920EFC8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityAPITestNetCore", "test\dotnetcore\SecurityAPITestNetCore\SecurityAPITestNetCore.csproj", "{44B8B2B6-0842-4018-A547-EF33920EFC8E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resources", "resources", "{88EB1BC4-0D68-4906-AA36-E1EA1F6AFD35}"
+	ProjectSection(SolutionItems) = preProject
+		dotnet\resources\key.snk = dotnet\resources\key.snk
+		dotnet\resources\Neon.SSH.NET.dll = dotnet\resources\Neon.SSH.NET.dll
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -128,6 +134,7 @@ Global
 		{7F5F1DDC-09BE-4567-8CD4-41387AD91BEE} = {750343D3-EAA6-433E-A099-71BC6851EA71}
 		{9100025A-68E0-4618-B83C-4D626CB89DBB} = {7F5F1DDC-09BE-4567-8CD4-41387AD91BEE}
 		{44B8B2B6-0842-4018-A547-EF33920EFC8E} = {89FFECB3-7A69-41F8-88C7-F05193E5CDF4}
+		{88EB1BC4-0D68-4906-AA36-E1EA1F6AFD35} = {5CB1725B-3FA5-49B1-A1F8-41EFCACA3CF1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AEB1693D-906F-402A-AD66-A1A9AE2ABBE2}

@@ -18,6 +18,7 @@ using Org.BouncyCastle.Asn1.Nist;
 using SecurityAPICommons.Commons;
 using SecurityAPICommons.Utils;
 using Org.BouncyCastle.Utilities.Encoders;
+using System.Security.AccessControl;
 
 namespace SecurityAPICommons.Keys
 {
@@ -153,15 +154,35 @@ namespace SecurityAPICommons.Keys
                 byte[] serializedPrivateBytes = this.privateKeyInfo.ToAsn1Object().GetDerEncoded();
                 string serializedPrivate = Convert.ToBase64String(serializedPrivateBytes);
                 RsaPrivateCrtKeyParameters privateKey = (RsaPrivateCrtKeyParameters)PrivateKeyFactory.CreateKey(Convert.FromBase64String(serializedPrivate));
+#if NETCORE
+ return DotNetUtilities.ToRSA(privateKey);
+#else
+
+
                 /****System.Security.Cryptography.CryptographicException: The system cannot find the file specified.****/
                 /****HACK****/
                 //https://social.msdn.microsoft.com/Forums/vstudio/en-US/7ea48fd0-8d6b-43ed-b272-1a0249ae490f/systemsecuritycryptographycryptographicexception-the-system-cannot-find-the-file-specified?forum=clr#37d4d83d-0eb3-497a-af31-030f5278781a
                 CspParameters cspParameters = new CspParameters();
                 cspParameters.Flags = CspProviderFlags.UseMachineKeyStore;
-                cspParameters.KeyContainerName = "MyKeyContainerName";
-                return DotNetUtilities.ToRSA(privateKey, cspParameters);
+                if (SecurityUtils.compareStrings(Config.Global.GLOBAL_KEY_COONTAINER_NAME, ""))
+                {
+                    string uid = Guid.NewGuid().ToString();
+                    cspParameters.KeyContainerName = uid;
+                    Config.Global.GLOBAL_KEY_COONTAINER_NAME = uid;
+                    System.Security.Principal.SecurityIdentifier userId = new System.Security.Principal.SecurityIdentifier(System.Security.Principal.WindowsIdentity.GetCurrent().User.ToString());
+                    CryptoKeyAccessRule rule = new CryptoKeyAccessRule(userId, CryptoKeyRights.FullControl, AccessControlType.Allow);
+                    cspParameters.CryptoKeySecurity = new CryptoKeySecurity();
+                    cspParameters.CryptoKeySecurity.SetAccessRule(rule);
+                }
+                else
+                {
+                    cspParameters.KeyContainerName = Config.Global.GLOBAL_KEY_COONTAINER_NAME;
+
+                }
                 /****System.Security.Cryptography.CryptographicException: The system cannot find the file specified.****/
                 /****HACK****/
+                return DotNetUtilities.ToRSA(privateKey, cspParameters);
+#endif
 
 
             }
@@ -524,17 +545,37 @@ namespace SecurityAPICommons.Keys
                     byte[] serializedPrivateBytes = this.privateKeyInfo.ToAsn1Object().GetDerEncoded();
                     string serializedPrivate = Convert.ToBase64String(serializedPrivateBytes);
                     RsaPrivateCrtKeyParameters privateKey = (RsaPrivateCrtKeyParameters)PrivateKeyFactory.CreateKey(Convert.FromBase64String(serializedPrivate));
-                    /****System.Security.Cryptography.CryptographicException: The system cannot find the file specified.****/
-                    /****HACK****/
-                    //https://social.msdn.microsoft.com/Forums/vstudio/en-US/7ea48fd0-8d6b-43ed-b272-1a0249ae490f/systemsecuritycryptographycryptographicexception-the-system-cannot-find-the-file-specified?forum=clr#37d4d83d-0eb3-497a-af31-030f5278781a
-                    CspParameters cspParameters = new CspParameters();
-                    cspParameters.Flags = CspProviderFlags.UseMachineKeyStore;
-                    cspParameters.KeyContainerName = "MyKeyContainerName";
-                    alg =  DotNetUtilities.ToRSA(privateKey, cspParameters);
-                    /****System.Security.Cryptography.CryptographicException: The system cannot find the file specified.****/
-                    /****HACK****/
+#if NETCORE
+ alg = DotNetUtilities.ToRSA(privateKey);
+#else
+
+
+                /****System.Security.Cryptography.CryptographicException: The system cannot find the file specified.****/
+                /****HACK****/
+                //https://social.msdn.microsoft.com/Forums/vstudio/en-US/7ea48fd0-8d6b-43ed-b272-1a0249ae490f/systemsecuritycryptographycryptographicexception-the-system-cannot-find-the-file-specified?forum=clr#37d4d83d-0eb3-497a-af31-030f5278781a
+                CspParameters cspParameters = new CspParameters();
+                cspParameters.Flags = CspProviderFlags.UseMachineKeyStore;
+                if (SecurityUtils.compareStrings(Config.Global.GLOBAL_KEY_COONTAINER_NAME, ""))
+                {
+                    string uid = Guid.NewGuid().ToString();
+                    cspParameters.KeyContainerName = uid;
+                    Config.Global.GLOBAL_KEY_COONTAINER_NAME = uid;
+                    System.Security.Principal.SecurityIdentifier userId = new System.Security.Principal.SecurityIdentifier(System.Security.Principal.WindowsIdentity.GetCurrent().User.ToString());
+                    CryptoKeyAccessRule rule = new CryptoKeyAccessRule(userId, CryptoKeyRights.FullControl, AccessControlType.Allow);
+                    cspParameters.CryptoKeySecurity = new CryptoKeySecurity();
+                    cspParameters.CryptoKeySecurity.SetAccessRule(rule);
                 }
-                else if (SecurityUtils.compareStrings("ECDSA", algorithm))
+                else
+                {
+                    cspParameters.KeyContainerName = Config.Global.GLOBAL_KEY_COONTAINER_NAME;
+
+                }
+                /****System.Security.Cryptography.CryptographicException: The system cannot find the file specified.****/
+                /****HACK****/
+                alg = DotNetUtilities.ToRSA(privateKey, cspParameters);
+#endif
+            }
+            else if (SecurityUtils.compareStrings("ECDSA", algorithm))
                 {
                     string b64Encoded = this.ToBase64();
                     byte[] privKeyBytes8 = Convert.FromBase64String(b64Encoded);//Encoding.UTF8.GetBytes(privKeyEcc);
