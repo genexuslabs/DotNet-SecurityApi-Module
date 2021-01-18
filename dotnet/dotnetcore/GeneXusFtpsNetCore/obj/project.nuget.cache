@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "jXs+gHMk3Jw5lgO5kCwqovOZipt7/0wtUCEJ1zfyJsGYf6QzdDMjz70ttEEJod++LDU6JG9/oL+MVU3NJzpP1w==",
+  "dgSpecHash": "zBGgZrulZfk1lp+0T0RHS0cyKL09IXCvEhfouKtnC7w2ry9bSXA5TdXu43kZe+eaWuVCfkjW+Zhr/90czfNxFA==",
   "success": true,
   "projectFilePath": "C:\\git\\SecurityAPI\\DotNet-SecurityApi-Module\\dotnet\\dotnetcore\\GeneXusFtpsNetCore\\GeneXusFtpsNetCore.csproj",
   "expectedPackageFiles": [
