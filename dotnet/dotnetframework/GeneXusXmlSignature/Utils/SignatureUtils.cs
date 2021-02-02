@@ -150,7 +150,38 @@ namespace GeneXusXmlSignature.GeneXusUtils
         }
 
 
-        internal static XmlNode getNodeFromID(XmlDocument doc, string id, string xPath, Error error)
+        /* internal static XmlNode getNodeFromID(XmlDocument doc, string id, string xPath, Error error)
+         {
+             if (id == null || SecurityUtils.compareStrings(id, ""))
+             {
+                 error.setError("SU010", "Error, id data is empty");
+                 return null;
+             }
+             string idToFind = xPath.Substring(1);
+             XmlNode rootNode = doc.DocumentElement;
+             XmlNodeList allNodes = rootNode.ChildNodes;
+             foreach (XmlNode node in allNodes)
+             {
+
+                 XmlAttributeCollection attributes = node.Attributes;
+                 if (attributes != null)
+                 {
+                     foreach (XmlAttribute attribute in node.Attributes)
+                     {
+                         if (SecurityUtils.compareStrings(attribute.Name, id) && SecurityUtils.compareStrings(attribute.Value, idToFind))
+                         {
+                             return node;
+                         }
+                     }
+                 }
+
+
+             }
+             error.setError("SU009", "Could not found element attribute " + id + " with id: " + idToFind);
+             return null;
+         }*/
+
+        internal static XmlNode getNodeFromID(XmlDocument doc, String id, String xPath, Error error)
         {
             if (id == null || SecurityUtils.compareStrings(id, ""))
             {
@@ -158,28 +189,63 @@ namespace GeneXusXmlSignature.GeneXusUtils
                 return null;
             }
             string idToFind = xPath.Substring(1);
-            XmlNode rootNode = doc.DocumentElement;
-            XmlNodeList allNodes = rootNode.ChildNodes;
-            foreach (XmlNode node in allNodes)
-            {
+            XmlNode root = doc.DocumentElement;
+            XmlNodeList allNodes = root.ChildNodes;
 
-                XmlAttributeCollection attributes = node.Attributes;
-                if (attributes != null)
+            XmlNode n = RecursivegetNodeFromID(allNodes, id, idToFind);
+            if (n == null)
+            {
+                error.setError("SU009", "Could not find element with id " + idToFind);
+            }
+            return n;
+
+        }
+
+        private static XmlNode FindAttribute(XmlNode node, String id, String idToFind)
+        {
+            XmlAttributeCollection attributes = node.Attributes;
+            if (attributes != null)
+            {
+                foreach (XmlAttribute attribute in node.Attributes)
                 {
-                    foreach (XmlAttribute attribute in node.Attributes)
+                    if (SecurityUtils.compareStrings(attribute.Name, id) && SecurityUtils.compareStrings(attribute.Value, idToFind))
                     {
-                        if (SecurityUtils.compareStrings(attribute.Name, id) && SecurityUtils.compareStrings(attribute.Value, idToFind))
-                        {
-                            return node;
-                        }
+                        return node;
                     }
                 }
-
-
             }
-            error.setError("SU009", "Could not found element attribute " + id + " with id: " + idToFind);
             return null;
         }
+
+        private static XmlNode RecursivegetNodeFromID(XmlNodeList list, String id, String idToFind)
+        {
+            if (list.Count == 0)
+            {
+                return null;
+            }
+            else
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    XmlNode node = FindAttribute(list.Item(i), id, idToFind);
+                    if (node == null)
+                    {
+                        XmlNode n1 = RecursivegetNodeFromID(list.Item(i).ChildNodes, id, idToFind);
+                        if (n1 != null)
+                        {
+                            return n1;
+                        }
+                    }
+                    else
+                    {
+                        return node;
+                    }
+                }
+                return null;
+            }
+        }
+
+
 
         internal static string getIDNodeValue(XmlDocument doc)
         {
