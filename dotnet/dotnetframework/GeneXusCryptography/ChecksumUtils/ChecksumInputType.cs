@@ -11,7 +11,7 @@ namespace GeneXusCryptography.ChecksumUtils
 	[SecuritySafeCritical]
 	public enum ChecksumInputType
 	{
-		NONE, BASE64, HEX, TXT, ASCII,
+		NONE, BASE64, HEX, TXT, ASCII, LOCAL_FILE,
 	}
 
 	[SecuritySafeCritical]
@@ -29,6 +29,8 @@ namespace GeneXusCryptography.ChecksumUtils
 					return ChecksumInputType.TXT;
 				case "ASCII":
 					return ChecksumInputType.ASCII;
+				case "LOCAL_FILE":
+					return ChecksumInputType.LOCAL_FILE;
 				default:
 					error.setError("CI001", "Unrecognized checksum input type");
 					return ChecksumInputType.NONE;
@@ -47,6 +49,8 @@ namespace GeneXusCryptography.ChecksumUtils
 					return "TXT";
 				case ChecksumInputType.ASCII:
 					return "ASCII";
+				case ChecksumInputType.LOCAL_FILE:
+					return "LOCAL_FILE";
 				default:
 					error.setError("CI002", "Unrecognized checksum input type");
 					return "";
@@ -89,8 +93,18 @@ namespace GeneXusCryptography.ChecksumUtils
 						error.setError("CI004", e.Message);
 					}
 					break;
+				case ChecksumInputType.LOCAL_FILE:
+					try
+					{
+						aux = System.IO.File.ReadAllBytes(input);
+					}
+					catch (Exception e)
+					{
+						error.setError("CI005", e.Message);
+					}
+					break;
 				default:
-					error.setError("CI005", "Unrecognized checksum input type");
+					error.setError("CI006", "Unrecognized checksum input type");
 					break;
 			}
 			return aux;
