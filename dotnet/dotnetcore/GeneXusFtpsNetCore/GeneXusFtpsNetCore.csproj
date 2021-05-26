@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>GeneXusFtpsNetCoreImpl</AssemblyName>
     <Version>17.4.0</Version>
   </PropertyGroup>
@@ -9,9 +9,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
    
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1'">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net5.0'">
+  </PropertyGroup>
+  <PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(TargetFramework)', '^net\d'))">
     <DefineConstants>NETCORE</DefineConstants>
-
+  </PropertyGroup>
+  <PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(TargetFramework)', '^netcoreapp\d'))">
+    <DefineConstants>NETCORE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
