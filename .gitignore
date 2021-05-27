@@ -62,3 +62,4 @@ dotnet/dotnetframework/GeneXusFtps/bin/
 dotnet/dotnetframework/GeneXusFtps/packages.config
 dotnet/dotnetcore/GeneXusFtpsNetCore/obj/
 dotnet/resources/key.snk
+dotnet/dotnetcore/GeneXusFtpsNetCore/bin/
