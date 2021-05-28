@@ -138,77 +138,78 @@ namespace Sftp.GeneXusSftp
                 }
             }
 
-            FileStream stream = null;
             try
             {
-                stream = File.OpenRead(local_path);
+                using (FileStream stream = File.OpenRead(local_path))
+                {
+                    string rDir = "";
+                    bool control = false;
+                    string dirRemote = this.channel.WorkingDirectory;
+
+                    try
+                    {
+                        control = this.channel.WorkingDirectory.Contains("/");
+
+                    }
+                    catch (Exception e)
+                    {
+                        this.error.setError("SF018", e.Message);
+                        return false;
+                    }
+                    if (control)
+                    {
+                        remoteDir = $"/{remoteDir.Replace(@"\", "/")}";
+                        rDir = SecurityUtils.compareStrings(remoteDir, "/") ? remoteDir : remoteDir + "/";
+                    }
+                    else
+                    {
+                        rDir = SecurityUtils.compareStrings(remoteDir, "\\") ? remoteDir : remoteDir + "\\";
+                    }
+                    rDir += GetFileNamne(localPath);
+                    if (rDir.Length > 1)
+                    {
+                        if (rDir.StartsWith("\\") || rDir.StartsWith("/"))
+                        {
+                            rDir = rDir.Substring(1, rDir.Length - 1);
+                        }
+                    }
+
+                    try
+                    {
+                        this.channel.UploadFile(stream, rDir, true, null);
+                    }
+                    catch (Exception e)
+                    {
+                        if (SecurityUtils.compareStrings(remoteDir, "/") || SecurityUtils.compareStrings(remoteDir, "\\") || SecurityUtils.compareStrings(remoteDir, "//"))
+                        {
+                            try
+                            {
+                                this.channel.UploadFile(stream, GetFileNamne(localPath), true, null);
+                            }
+                            catch (Exception s)
+                            {
+                                this.error.setError("SF012", s.Message);
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            this.error.setError("SF013", e.Message);
+                            return false;
+                        }
+
+
+                    }
+
+                    return true;
+                }
             }
+
             catch (Exception e)
             {
                 this.error.setError("SF011", e.Message);
                 return false;
             }
-
-            string rDir = "";
-            bool control = false;
-            string dirRemote = this.channel.WorkingDirectory;
-
-            try
-            {
-                control = this.channel.WorkingDirectory.Contains("/");
-
-            }
-            catch (Exception e)
-            {
-                this.error.setError("SF018", e.Message);
-                return false;
-            }
-            if (control)
-            {
-                remoteDir = $"/{remoteDir.Replace(@"\", "/")}";
-                rDir = SecurityUtils.compareStrings(remoteDir, "/") ? remoteDir : remoteDir + "/";
-            }
-            else
-            {
-                rDir = SecurityUtils.compareStrings(remoteDir, "\\") ? remoteDir : remoteDir + "\\";
-            }
-            rDir += GetFileNamne(localPath);
-            if (rDir.Length > 1)
-            {
-                if (rDir.StartsWith("\\") || rDir.StartsWith("/"))
-                {
-                    rDir = rDir.Substring(1, rDir.Length - 1);
-                }
-            }
-
-            try
-            {
-                this.channel.UploadFile(stream, rDir, true, null);
-            }
-            catch (Exception e)
-            {
-                if (SecurityUtils.compareStrings(remoteDir, "/") || SecurityUtils.compareStrings(remoteDir, "\\") || SecurityUtils.compareStrings(remoteDir, "//"))
-                {
-                    try
-                    {
-                        this.channel.UploadFile(stream, GetFileNamne(localPath), true, null);
-                    }
-                    catch (Exception s)
-                    {
-                        this.error.setError("SF012", s.Message);
-                        return false;
-                    }
-                }
-                else
-                {
-                    this.error.setError("SF013", e.Message);
-                    return false;
-                }
-
-
-            }
-
-            return true;
 
         }
 
@@ -253,12 +254,13 @@ namespace Sftp.GeneXusSftp
             }
             try
             {
+                using (Stream file = new FileStream(localDir + GetFileNamne(remoteFilePath), FileMode.Create))
+                {
 
+                    //Stream file = new FileStream(localDir + GetFileNamne(remoteFilePath), FileMode.Create);
+                    this.channel.DownloadFile(rDir, file);
 
-                Stream file = new FileStream(localDir + GetFileNamne(remoteFilePath), FileMode.Create);
-                this.channel.DownloadFile(rDir, file);
-
-
+                }
             }
             catch (Exception e)
             {
