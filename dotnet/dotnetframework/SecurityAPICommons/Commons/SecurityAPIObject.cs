@@ -14,8 +14,6 @@ namespace SecurityAPICommons.Commons
     public class SecurityAPIObject
     {
         [SecuritySafeCritical]
-        private Error _error;
-        [SecuritySafeCritical]
         public Error error;
 
         /// <summary>

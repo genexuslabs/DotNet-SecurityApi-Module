@@ -86,7 +86,6 @@
     <Folder Include="Ftps\" />
     <Folder Include="Jwt\Symmetric\" />
     <Folder Include="SecurityAPICommons\keys\" />
-    <Folder Include="Sftp\" />
     <Folder Include="SecurityAPICommons\comons\" />
     <Folder Include="SecurityAPICommons\encoders\" />
   </ItemGroup>
@@ -717,6 +716,10 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 		<None Include="..\..\dotnetframework\SecurityAPITest\Temp\outputTestFilesJ\dummy.txt" Link="Temp\outputTestFilesJ\dummy.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+
+		<None Include="..\..\dotnetframework\SecurityAPITest\Temp\sftptest\key\dummy.txt" Link="Temp\sftptest\key\dummy.txt">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 		<None Include="..\..\dotnetframework\SecurityAPITest\Temp\sftptest\back\dummy.txt" Link="Temp\sftptest\back\dummy.txt">

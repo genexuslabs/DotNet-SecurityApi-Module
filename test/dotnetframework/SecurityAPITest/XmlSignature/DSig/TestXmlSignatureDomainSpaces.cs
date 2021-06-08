@@ -11,8 +11,8 @@ namespace SecurityAPITest.XmlSignature.DSig
 	public class TestXmlSignatureDomainSpaces : SecurityAPITestObject
 	{
 		private static string path_RSA_sha1_1024;
-		private static string xmlUnsigned;
-		private static string dSigType;
+		//private static string xmlUnsigned;
+		//private static string dSigType;
 		private static DSigOptions options;
 		private static string pathKey;
 		private static string pathCert;
@@ -25,9 +25,9 @@ namespace SecurityAPITest.XmlSignature.DSig
 		{
 			signer = new XmlDSigSigner();
 			path_RSA_sha1_1024 = Path.Combine(BASE_PATH, "dummycerts", "RSA_sha1_1024");
-			xmlUnsigned = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<Envelope xmlns=\"http://example.org/envelope\">"
-					+ "  <Body>" + "    Ola mundo" + "  </Body>" + "</Envelope>";
-			dSigType = "ENVELOPED ";
+			//xmlUnsigned = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<Envelope xmlns=\"http://example.org/envelope\">"
+			//		+ "  <Body>" + "    Ola mundo" + "  </Body>" + "</Envelope>";
+			//dSigType = "ENVELOPED ";
 			options = new DSigOptions();
 
 			pathKey = Path.Combine(path_RSA_sha1_1024, "sha1d_key.pem");

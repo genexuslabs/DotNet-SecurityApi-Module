@@ -37,9 +37,11 @@ namespace SecurityAPITest.XmlSignature.DSig
 
 		private static Error error;
 
+#if !NETCORE
 		private static string xmlUnsignedXPathFile;
 		private static string xPath;
 		private static string xmlUnsignedXPath;
+#endif
 
 		private static string xmlUnsignedIDPathFile;
 		private static string identifierAttribute;
@@ -78,8 +80,10 @@ namespace SecurityAPITest.XmlSignature.DSig
 			optionsXPath = new DSigOptions();
 
 			error = new Error();
+#if !NETCORE
 			xmlUnsignedXPathFile = Path.Combine(BASE_PATH, "Temp", "bookSample.xml");
 			xPath = "/bookstore/book[1]";
+#endif
 
 			xmlUnsignedIDPathFile = Path.Combine(BASE_PATH, "Temp", "xmlID.xml");
 			identifierAttribute = "id";
@@ -94,7 +98,7 @@ namespace SecurityAPITest.XmlSignature.DSig
 					+ "    <body>Don't forget me this weekend!</body>\r\n" + "  </note>\r\n" + "  <note id='tag2'>\r\n"
 					+ "    <to>Jani</to>\r\n" + "    <from>Tove</from>\r\n" + "    <heading>Re: Reminder</heading>\r\n"
 					+ "    <body>I will not</body>\r\n" + "  </note>\r\n" + "</messages>";
-
+#if !NETCORE
 			xmlUnsignedXPath = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + "<bookstore>\r\n"
 					+ "<book category=\"cooking\">\r\n" + "  <title lang=\"en\">Everyday Italian</title>\r\n"
 					+ "  <author>Giada De Laurentiis</author>\r\n" + "  <year>2005</year>\r\n"
@@ -108,6 +112,7 @@ namespace SecurityAPITest.XmlSignature.DSig
 					+ "  <price>49.99</price>\r\n" + "</book>\r\n" + "<book category=\"web\">\r\n"
 					+ "  <title lang=\"en\">Learning XML</title>\r\n" + "  <author>Erik T. Ray</author>\r\n"
 					+ "  <year>2003</year>\r\n" + "  <price>39.95</price>\r\n" + "</book>\r\n" + "</bookstore>";
+#endif
 		}
 
 		[Test]
