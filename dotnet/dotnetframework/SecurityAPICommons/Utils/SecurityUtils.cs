@@ -2,6 +2,7 @@
 using Org.BouncyCastle.Utilities.Encoders;
 using SecurityAPICommons.Commons;
 using System;
+using System.IO;
 using System.Security;
 
 namespace SecurityAPICommons.Utils
@@ -50,12 +51,17 @@ namespace SecurityAPICommons.Utils
         public static string getFileExtension(string path)
         {
 
-            int lastIndexOf = path.LastIndexOf(".");
-            if (lastIndexOf == -1)
+            string fileName = Path.GetFileName(path);
+            string extension;
+            try
             {
-                return ""; // empty extension
+                extension = Path.GetExtension(fileName);
             }
-            return path.Substring(lastIndexOf);
+            catch (Exception)
+            {
+                extension = "";
+            }
+            return extension;
         }
 
 		[SecuritySafeCritical]

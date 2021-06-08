@@ -1,6 +1,5 @@
 .vs/
 packages/
-test/
 dotnet/dotnetframework/SecurityAPICommons/bin/
 dotnet/dotnetframework/SecurityAPICommons/obj/
 dotnet/dotnetframework/GeneXusXmlSignature/obj/
@@ -63,3 +62,9 @@ dotnet/dotnetframework/GeneXusFtps/packages.config
 dotnet/dotnetcore/GeneXusFtpsNetCore/obj/
 dotnet/resources/key.snk
 dotnet/dotnetcore/GeneXusFtpsNetCore/bin/
+/test/dotnetcore/SecurityAPITestNetCore/.runsettings
+/test/dotnetframework/SecurityAPITest/.runsettings
+/test/dotnetframework/SecurityAPITest/obj/Debug/net471/SecurityAPITest.AssemblyInfoInputs.cache
+/test/dotnetframework/SecurityAPITest/obj/Debug/net471/SecurityAPITest.GeneratedMSBuildEditorConfig.editorconfig
+/test/dotnetframework/SecurityAPITest/obj/Debug/net471/SecurityAPITest.csprojAssemblyReference.cache
+/test/resources/key.snk

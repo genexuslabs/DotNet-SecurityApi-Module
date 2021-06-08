@@ -1,0 +1,8 @@
+<Project>
+	<PropertyGroup>
+		<AssemblyVersion>17.4.0</AssemblyVersion>
+		<FileVersion>17.4.0</FileVersion>
+		<CopyrightYear>$([System.DateTime]::UtcNow.ToString("yyyy"))</CopyrightYear>
+		<Copyright>Copyright © 1988-$(CopyrightYear) GeneXus. All Rights Reserved</Copyright>
+	</PropertyGroup>
+</Project>

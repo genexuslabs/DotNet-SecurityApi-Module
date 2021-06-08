@@ -28,10 +28,6 @@ namespace SecurityAPICommons.Utils
 		[SecuritySafeCritical]
 		public bool IsValid(string path)
 		{
-			if (!IsValidName(path))
-			{
-				return false;
-			}
 			string ext = SecurityUtils.getFileExtension(path);
 			for (int i = 0; i < this.whitelist.Count; i++)
 			{
@@ -53,23 +49,5 @@ namespace SecurityAPICommons.Utils
 			return false;
 		}
 
-		private bool IsValidName(string path)
-		{
-			int counter = 0;
-			int i = 0;
-			while (i < path.Length && counter <= 2)
-			{
-				if (path[i] == '.')
-				{
-					counter++;
-				}
-				i++;
-			}
-			if (counter >= 2)
-			{
-				return false;
-			}
-			return true;
-		}
 	}
 }
