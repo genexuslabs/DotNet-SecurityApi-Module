@@ -51,16 +51,17 @@ namespace SecurityAPICommons.Utils
         public static string getFileExtension(string path)
         {
 
-            string fileName = Path.GetFileName(path);
+            string fileName =  Path.GetFileName(path);
             string extension;
-            try
-            {
+			try
+			{
                 extension = Path.GetExtension(fileName);
             }
-            catch (Exception)
-            {
+             catch(Exception)
+			{
                 extension = "";
-            }
+			}
+
             return extension;
         }
 
