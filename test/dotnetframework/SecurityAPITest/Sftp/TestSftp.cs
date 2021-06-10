@@ -25,15 +25,15 @@ namespace SecurityAPITest.Sftp
 		public virtual void SetUp()
 		{
 			host = TestContextParameter("gx_ftp_host");
-			user = TestContextParameter("gx_ftp_user");
+			user = TestContextParameter("gx_sftp_user");
 			string known_hosts_content_base64 = TestContextParameter("gx_ftp_known_hosts_content_base64");
 			known_hosts = Path.Combine(BASE_PATH, "Temp", "sftptest", "key", "known_hosts");
 			File.WriteAllBytes(known_hosts, Convert.FromBase64String(known_hosts_content_base64));
-			password = TestContextParameter("gx_ftp_password");
+			password = TestContextParameter("gx_sftp_password");
 			keyPath = Path.Combine(BASE_PATH, "Temp", "sftptest", "key", "id_rsa");
 			string id_rsaConentBase64 = TestContextParameter("gx_ftp_id_rsa_content_base64");
 			File.WriteAllBytes(keyPath, Convert.FromBase64String(id_rsaConentBase64));
-			keyPassword = TestContextParameter("gx_ftp_password");
+			keyPassword = TestContextParameter("gx_sftp_key_password");
 			localPath = Path.Combine(BASE_PATH, "Temp", "sftptest", "sftptest1.txt");
 			remoteDir = "sftp";
 			remoteFilePath = "sftp/sftptest1.txt";

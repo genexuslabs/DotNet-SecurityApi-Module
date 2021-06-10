@@ -2,9 +2,6 @@
  <PropertyGroup>
     <TargetFramework>net47</TargetFramework>
     <AssemblyName>GeneXusSecurityAPICommonsImpl</AssemblyName>
-    <Version>17.4.0</Version>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\..\resources\key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,9 +10,4 @@
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.3.0" />
   </ItemGroup>
 
-  <ItemGroup>
-  <None Include="..\..\resources\key.snk">
-      <Link>key.snk</Link>
-    </None>
-  </ItemGroup>
 </Project>

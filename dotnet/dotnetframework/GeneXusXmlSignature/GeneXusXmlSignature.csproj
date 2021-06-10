@@ -1,18 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
  <PropertyGroup>
     <TargetFramework>net47</TargetFramework>
-	
-    <RootNamespace>GeneXusXmlSignature</RootNamespace>
+	  <RootNamespace>GeneXusXmlSignature</RootNamespace>
     <AssemblyName>GeneXusXmlSignatureImpl</AssemblyName>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\..\resources\key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
-  <ItemGroup>
-    <None Include="..\..\resources\key.snk">
-      <Link>key.snk</Link>
-    </None>
-    <None Include="packages.config" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SecurityAPICommons\SecurityAPICommons.csproj" />
     <PackageReference Include="BouncyCastle" Version="1.8.6.1" />
