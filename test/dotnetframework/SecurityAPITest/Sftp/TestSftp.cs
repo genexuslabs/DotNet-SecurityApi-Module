@@ -7,7 +7,8 @@ using System;
 namespace SecurityAPITest.Sftp
 {
     [TestFixture]
-    public class TestSftp: SecurityAPITestObject
+	[RunIfRunSettingsConfigured]
+	public class TestSftp: SecurityAPITestObject
     {
 		protected static string host;
 		protected static string user;

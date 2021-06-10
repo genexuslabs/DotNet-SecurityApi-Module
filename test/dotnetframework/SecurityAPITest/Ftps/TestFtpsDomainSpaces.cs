@@ -6,6 +6,7 @@ using System.IO;
 namespace SecurityAPITest.Ftps
 {
 	[TestFixture]
+	[RunIfRunSettingsConfigured]
 	public class TestFtpsDomainSpaces : SecurityAPITestObject
 	{
 		protected static string host;

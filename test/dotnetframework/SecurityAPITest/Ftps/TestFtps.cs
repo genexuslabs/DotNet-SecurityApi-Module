@@ -7,7 +7,8 @@ using System.IO;
 namespace SecurityAPITest.Ftps
 {
 	[TestFixture]
-    public class TestFtps: SecurityAPITestObject
+	[RunIfRunSettingsConfigured]
+	public class TestFtps: SecurityAPITestObject
     {
 		protected static string host;
 		protected static string user;
