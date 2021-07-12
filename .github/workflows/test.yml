@@ -1,0 +1,124 @@
+name: .NET
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      LINUX_DISTO: Ubuntu-20.04
+      FTP_USER: fullgx
+      FTP_PASS: fullgx
+      TRUST_STORE_PASS: fullgx
+   
+    steps:
+    - uses: Vampire/setup-wsl@v1
+      with:
+        distribution: ${{env.LINUX_DISTO}}
+        additional-packages:
+          vsftpd
+
+    - name: Setup user
+      shell: wsl-bash {0}
+      run: |
+        sudo useradd -m -p $(perl -e 'print crypt($ARGV[0], "password")' '${{env.FTP_PASS}}') ${{env.FTP_USER}}
+        echo ${{env.FTP_USER}} >> /etc/vsftpd.userlist
+        
+    - name: Setup SSH
+      shell: wsl-bash {0}
+      run: |
+        sudo apt-get -qq -y purge openssh-server
+        sudo apt-get -qq -y install openssh-server
+        echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+        sudo service ssh --full-restart
+        
+    - uses: Vampire/setup-wsl@v1
+      with:
+        distribution: ${{env.LINUX_DISTO}}
+        wsl-shell-command: bash -c "sudo -u ${{env.FTP_USER}} bash --noprofile --norc -euo pipefail '{0}'"
+        
+    - name: Setup certificates
+      shell: wsl-bash {0}
+      run: |
+        ssh-keygen -b 2048 -t rsa -m pem -f ~/.ssh/id_rsa -q -N ""
+        ssh-keygen -f ~/.ssh/id_rsa -m pem -e > /tmp/id_rsa.pem
+        
+        cat ~/.ssh/id_rsa > /tmp/vsftpd1.pem
+        cat /tmp/id_rsa.pem >> /tmp/vsftpd1.pem
+        
+        openssl req -new -x509 -key ~/.ssh/id_rsa -days 365 -subj "/CN=GeneXus" -out /tmp/ftp.cer
+        openssl pkcs12 -export -in /tmp/ftp.cer -inkey ~/.ssh/id_rsa -out /tmp/ftp_cert.pfx -password pass:${{env.TRUST_STORE_PASS}}
+        
+        ssh-keyscan -H 127.0.0.1 >> /tmp/known_hosts
+        
+        echo '::set-output name=BASE_64_ID_RSA::$(cat ~/.ssh/id_rsa | base64)'
+        echo '::set-output name=BASE_64_PFX_CERT::$(cat /tmp/ftp_cert.pfx | base64)'
+        echo '::set-output name=BASE_64_KNOWN_HOSTS::$(cat /tmp/known_hosts | base64)'
+        
+    - uses: Vampire/setup-wsl@v1
+      with:
+        distribution: ${{env.LINUX_DISTO}}
+        wsl-shell-command: bash -c "bash --noprofile --norc -euo pipefail '{0}'"
+    
+    - name: Configure vsftpd
+      shell: wsl-bash {0}
+      run: |
+        mv /tmp/vsftpd1.pem /etc/ssl/private/vsftpd1.pem
+        mkdir -p /etc/vsftpd/
+        
+        cat <<EOF > /etc/vsftpd/vsftpd.conf
+        listen=NO
+        listen_ipv6=YES
+        anonymous_enable=NO
+        local_enable=YES
+        write_enable=YES
+        local_umask=022
+        dirmessage_enable=YES
+        use_localtime=YES
+        xferlog_enable=YES
+        connect_from_port_20=YES
+        chroot_local_user=YES
+        secure_chroot_dir=/var/run/vsftpd/empty
+        pam_service_name=ftp
+        pasv_enable=Yes
+        pasv_min_port=10000
+        pasv_max_port=11000
+        user_sub_token=$USER
+        local_root=/home/$USER/ftp
+        userlist_enable=YES
+        userlist_file=/etc/vsftpd.userlist
+        userlist_deny=NO
+        rsa_cert_file=/etc/ssl/private/vsftpd1.pem
+        rsa_private_key_file=/etc/ssl/private/vsftpd1.pem
+        ssl_enable=YES
+        allow_anon_ssl=NO
+        force_local_data_ssl=YES
+        force_local_logins_ssl=YES
+        ssl_tlsv1=YES
+        ssl_sslv2=YES
+        ssl_sslv3=YES
+        require_ssl_reuse=NO
+        debug_ssl=YES
+        ssl_ciphers=HIGH
+        seccomp_sandbox=NO
+        isolate_network=NO
+        EOF
+        
+        sudo /etc/init.d/vsftpd start
+        
+    - uses: actions/checkout@v2
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore

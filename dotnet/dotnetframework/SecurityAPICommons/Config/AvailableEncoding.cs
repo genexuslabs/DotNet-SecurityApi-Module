@@ -102,7 +102,23 @@ namespace SecurityAPICommons.Config
             {
                 case AvailableEncoding.UTF_8:
                     return Encoding.UTF8.GetString(input);
+#if NETCORE
+                case AvailableEncoding.UTF_16:
+                    Encoding utf16 = Encoding.GetEncoding(1201, new EncoderReplacementFallback(strUniRepChr), new DecoderReplacementFallback(strUniRepChr));
+                    string utf16_string = utf16.GetString(input);
+                    return utf16_string.Replace(strUniRepChr, String.Empty);
 
+                case AvailableEncoding.UTF_16BE:
+                    Encoding utf16_be = Encoding.GetEncoding(1201, new EncoderReplacementFallback(strUniRepChr), new DecoderReplacementFallback(strUniRepChr));
+                    string utf16_beString = utf16_be.GetString(input);
+                    return utf16_beString.Replace(strUniRepChr, String.Empty);
+
+                case AvailableEncoding.UTF_16LE:
+                    Encoding utf16_le = Encoding.GetEncoding(1200, new EncoderReplacementFallback(strUniRepChr), new DecoderReplacementFallback(strUniRepChr));
+                    string utf16_leString = utf16_le.GetString(input);
+                    return utf16_leString.Replace(strUniRepChr, String.Empty);
+
+#else
                 case AvailableEncoding.UTF_16:
                     return Encoding.BigEndianUnicode.GetString(input);
 
@@ -111,7 +127,7 @@ namespace SecurityAPICommons.Config
 
                 case AvailableEncoding.UTF_16LE:
                     return Encoding.Unicode.GetString(input);
-
+#endif
                 case AvailableEncoding.UTF_32:
 
 
@@ -180,7 +196,20 @@ namespace SecurityAPICommons.Config
             {
                 case AvailableEncoding.UTF_8:
                     return Encoding.UTF8.GetBytes(input);
+#if NETCORE
+                case AvailableEncoding.UTF_16:
+                    Encoding utf16 = Encoding.GetEncoding(1201, new EncoderReplacementFallback(strUniRepChr), new DecoderReplacementFallback(strUniRepChr));
+                    return utf16.GetBytes(input);
 
+                case AvailableEncoding.UTF_16BE:
+                    Encoding utf16_be = Encoding.GetEncoding(1201, new EncoderReplacementFallback(strUniRepChr), new DecoderReplacementFallback(strUniRepChr));
+                    return utf16_be.GetBytes(input);
+
+                case AvailableEncoding.UTF_16LE:
+                    Encoding utf16_le = Encoding.GetEncoding(1200, new EncoderReplacementFallback(strUniRepChr), new DecoderReplacementFallback(strUniRepChr));
+                    return utf16_le.GetBytes(input);
+
+#else
                 case AvailableEncoding.UTF_16:
                     return Encoding.BigEndianUnicode.GetBytes(input);
 
@@ -189,7 +218,7 @@ namespace SecurityAPICommons.Config
 
                 case AvailableEncoding.UTF_16LE:
                     return Encoding.Unicode.GetBytes(input);
-
+#endif
                 case AvailableEncoding.UTF_32:
 
                     Encoding cpUTF32_1 = Encoding.GetEncoding(12001, new EncoderReplacementFallback(strUniRepChr), new DecoderReplacementFallback(strUniRepChr));

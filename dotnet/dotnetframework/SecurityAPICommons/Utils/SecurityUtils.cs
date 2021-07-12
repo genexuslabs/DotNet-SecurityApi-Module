@@ -50,6 +50,7 @@ namespace SecurityAPICommons.Utils
         [SecuritySafeCritical]
         public static string getFileExtension(string path)
         {
+
             string fileName =  Path.GetFileName(path);
             string extension;
 			try
@@ -60,6 +61,7 @@ namespace SecurityAPICommons.Utils
 			{
                 extension = "";
 			}
+
             return extension;
         }
 

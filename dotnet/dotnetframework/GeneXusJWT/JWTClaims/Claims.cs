@@ -10,7 +10,7 @@ namespace GeneXusJWT.GenexusJWTClaims
     public class Claims
     {
 
-        private List<Claim> _claims;
+        protected List<Claim> _claims;
 
         [SecuritySafeCritical]
         public Claims()
@@ -33,7 +33,7 @@ namespace GeneXusJWT.GenexusJWTClaims
         }
 
         [SecuritySafeCritical]
-        public object getClaimValue(string key, Error error)
+        public virtual object getClaimValue(string key, Error error)
         {
             for (int i = 0; i < _claims.Count; i++)
             {

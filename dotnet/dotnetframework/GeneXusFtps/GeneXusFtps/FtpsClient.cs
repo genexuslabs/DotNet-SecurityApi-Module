@@ -235,7 +235,7 @@ namespace GeneXusFtps.GeneXusFtps
             {
                 pwd = this.client.GetWorkingDirectory();
             }
-            catch (IOException e)
+            catch (IOException)
             {
                 this.error.setError("FS006", "Could not obtain working directory, try reconnect");
                 return "";

@@ -10,7 +10,6 @@ namespace GeneXusJWT.GenexusJWTClaims
     [SecuritySafeCritical]
     public class RegisteredClaims : Claims
     {
-        private List<Claim> claims;
         private IDictionary<string, string> customTimeValidationClaims;
 
         public RegisteredClaims()
@@ -88,15 +87,15 @@ namespace GeneXusJWT.GenexusJWTClaims
         }
 
 
-        public object getClaimValue(string key, Error error)
+        public override object getClaimValue(string key, Error error)
         {
             if (RegisteredClaimUtils.exists(key))
             {
-                for (int i = 0; i < claims.Count; i++)
+                for (int i = 0; i < _claims.Count; i++)
                 {
-                    if (SecurityUtils.compareStrings(key, claims[i].getKey()))
+                    if (SecurityUtils.compareStrings(key, _claims[i].getKey()))
                     {
-                        return claims[i].getValue();
+                        return _claims[i].getValue();
                     }
                 }
                 error.setError("RC001", "Could not find a claim with" + key + " key value");
