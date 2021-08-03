@@ -5,10 +5,21 @@
     <AssemblyName>GeneXusFtpsImpl</AssemblyName>
    <Version>17.5.0</Version>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\resources\key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\SecurityAPICommons\SecurityAPICommons.csproj"/>
   </ItemGroup>
 	<ItemGroup>
     <PackageReference Include="FluentFTP" Version="31.3.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\resources\key.snk">
+      <Link>key.snk</Link>
+    </None>
   </ItemGroup>
 </Project>
