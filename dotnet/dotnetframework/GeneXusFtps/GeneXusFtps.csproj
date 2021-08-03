@@ -3,6 +3,7 @@
     <TargetFramework>net47</TargetFramework>
     <RootNamespace>GeneXusFtps</RootNamespace>
     <AssemblyName>GeneXusFtpsImpl</AssemblyName>
+   <Version>17.5.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\SecurityAPICommons\SecurityAPICommons.csproj"/>

@@ -2,6 +2,7 @@
  <PropertyGroup>
     <TargetFramework>net47</TargetFramework>
     <AssemblyName>GeneXusSecurityAPICommonsImpl</AssemblyName>
+   <Version>17.5.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

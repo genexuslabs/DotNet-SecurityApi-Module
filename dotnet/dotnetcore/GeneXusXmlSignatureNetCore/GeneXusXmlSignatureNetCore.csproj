@@ -1,17 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>GeneXusXMLSignatureNetCoreImpl</AssemblyName>
-    <Version>17.4.0</Version>
+    <Version>17.5.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1'">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net5.0'">
+  </PropertyGroup>
+  <PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(TargetFramework)', '^net\d'))">
     <DefineConstants>NETCORE</DefineConstants>
-
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\dotnetframework\GeneXusXmlSignature\Commons\DSigOptions.cs" Link="Commons\DSigOptions.cs" />

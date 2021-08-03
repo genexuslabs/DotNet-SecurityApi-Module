@@ -3,6 +3,7 @@
     <TargetFramework>net47</TargetFramework>
     <RootNamespace>GeneXusCryptography</RootNamespace>
     <AssemblyName>GeneXusCryptographyImpl</AssemblyName>
+   <Version>17.5.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\SecurityAPICommons\SecurityAPICommons.csproj"/>

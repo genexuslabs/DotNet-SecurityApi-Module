@@ -3,6 +3,7 @@
     <TargetFramework>net47</TargetFramework>
     <RootNamespace>GeneXusJWT</RootNamespace>
     <AssemblyName>GeneXusJWTImpl</AssemblyName>
+   <Version>17.5.0</Version>
   </PropertyGroup>
   <PropertyGroup>
     <AppConfig>App.$(Configuration).config</AppConfig>
