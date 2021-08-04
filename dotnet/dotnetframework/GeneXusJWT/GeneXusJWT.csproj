@@ -3,9 +3,16 @@
     <TargetFramework>net47</TargetFramework>
     <RootNamespace>GeneXusJWT</RootNamespace>
     <AssemblyName>GeneXusJWTImpl</AssemblyName>
+   <Version>17.5.0</Version>
   </PropertyGroup>
   <PropertyGroup>
     <AppConfig>App.$(Configuration).config</AppConfig>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\resources\key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -24,5 +31,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SecurityAPICommons\SecurityAPICommons.csproj"/>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\resources\key.snk">
+      <Link>key.snk</Link>
+    </None>
   </ItemGroup>
 </Project>

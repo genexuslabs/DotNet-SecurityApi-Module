@@ -3,6 +3,13 @@
     <TargetFramework>net47</TargetFramework>
     <RootNamespace>GeneXusSftp</RootNamespace>
     <AssemblyName>GeneXusSftpClientImpl</AssemblyName>
+   <Version>17.5.0</Version>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\resources\key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Neon.SSH.NET">
@@ -11,5 +18,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SecurityAPICommons\SecurityAPICommons.csproj"/>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\resources\key.snk">
+      <Link>key.snk</Link>
+    </None>
   </ItemGroup>
 </Project>

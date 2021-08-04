@@ -5,7 +5,14 @@
     <IsPublishable>false</IsPublishable>
     <RootNamespace>SecurityAPITest</RootNamespace>
     <AssemblyName>SecurityAPITest</AssemblyName>
+    <Version>17.5.0</Version>
 	</PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\resources\key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
    <ItemGroup>
     <PackageReference Include="FubarDev.FtpServer" Version="3.1.1" />
     <PackageReference Include="Microsoft.CodeCoverage" Version="16.10.0" />
@@ -407,5 +414,9 @@
   <ItemGroup>
     <Folder Include="dummycerts\Test_sha1_1024_DER\" />
   </ItemGroup>
-
+  <ItemGroup>
+    <None Include="..\..\resources\key.snk">
+      <Link>key.snk</Link>
+    </None>
+  </ItemGroup>
 </Project>
