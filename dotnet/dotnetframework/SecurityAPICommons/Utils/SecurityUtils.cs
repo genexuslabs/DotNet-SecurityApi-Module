@@ -31,6 +31,21 @@ namespace SecurityAPICommons.Utils
             
         }
 
+        [SecuritySafeCritical]
+        public static byte[] getFileBytes(string pathInput, Error error)
+		{
+            byte[] aux = null; 
+            try
+            {
+                aux = System.IO.File.ReadAllBytes(pathInput);
+            }
+            catch (Exception e)
+            {
+                error.setError("SU001", e.Message);
+            }
+            return aux;
+        }
+
         /// <summary>
         /// Verifies if the file has some extension type
         /// </summary>

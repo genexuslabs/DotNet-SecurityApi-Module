@@ -36,13 +36,51 @@ namespace GeneXusCryptography.Asymmetric
         [SecuritySafeCritical]
         public string DoSign(PrivateKeyManager key, string hashAlgorithm, string plainText)
         {
-            return DoSignPKCS12(key, hashAlgorithm, plainText);
+            EncodingUtil eu = new EncodingUtil();
+            byte[] inputText = eu.getBytes(plainText);
+            if (eu.HasError())
+            {
+                this.error = eu.GetError();
+                return "";
+            }
+            return DoSignPKCS12(key, hashAlgorithm, inputText);
         }
+
+        [SecuritySafeCritical]
+        public string DoSignFile(PrivateKeyManager key, string hashAlgorithm, string path)
+        {
+            byte[] input = SecurityUtils.getFileBytes(path, this.error);
+            if (this.HasError())
+            {
+                return "";
+            }
+            return DoSignPKCS12(key, hashAlgorithm, input);
+        }
+
+
 
         [SecuritySafeCritical]
         public bool DoVerify(CertificateX509 cert, string plainText, string signature)
         {
-            return DoVerifyPKCS12(cert, plainText, signature);
+            EncodingUtil eu = new EncodingUtil();
+            byte[] inputText = eu.getBytes(plainText);
+            if (eu.HasError())
+            {
+                this.error = eu.GetError();
+                return false;
+            }
+            return DoVerifyPKCS12(cert, inputText, signature);
+        }
+
+        [SecuritySafeCritical]
+        public bool DoVerifyFile(CertificateX509 cert, String path, String signature)
+        {
+            byte[] input = SecurityUtils.getFileBytes(path, this.error);
+            if (this.HasError())
+            {
+                return false;
+            }
+            return DoVerifyPKCS12(cert, input, signature);
         }
 
         /********EXTERNAL OBJECT PUBLIC METHODS  - END ********/
@@ -56,7 +94,7 @@ namespace GeneXusCryptography.Asymmetric
         /// <param name="password">string password of the certificate/keystore in pkcs12 format</param>
         /// <param name="plainText">string UTF-8 text to sign</param>
         /// <returns>string Base64 signature of plainText text</returns>
-        private string DoSignPKCS12(PrivateKey key, string hashAlgorithm, string plainText)
+        private string DoSignPKCS12(PrivateKey key, string hashAlgorithm, byte[] input)
         {
             this.error.cleanError();
             HashAlgorithm hash = HashAlgorithmUtils.getHashAlgorithm(hashAlgorithm, this.error);
@@ -74,11 +112,11 @@ namespace GeneXusCryptography.Asymmetric
 
             if (SecurityUtils.compareStrings(algorithm, "RSA"))
             {
-                return signRSA(hash, plainText, keyMan);
+                return signRSA(hash, input, keyMan);
             }
             if (SecurityUtils.compareStrings(algorithm, "ECDSA"))
             {
-                return signECDSA(hash, plainText, keyMan);
+                return signECDSA(hash, input, keyMan);
             }
             this.error.setError("AE047", "Unrecognized signing algorithm " + algorithm);
             return "";
@@ -93,7 +131,7 @@ namespace GeneXusCryptography.Asymmetric
         /// <param name="plainText">string UTF-8 text to sign</param>
         /// <param name="signature">string Base64 signature of plainText</param>
         /// <returns>boolean true if signature is valid for the specified parameters, false if it is invalid</returns>
-        private bool DoVerifyPKCS12(Certificate certificate, string plainText, string signature)
+        private bool DoVerifyPKCS12(Certificate certificate, byte[] input, string signature)
         {
             this.error.cleanError();
             CertificateX509 cert = (CertificateX509)certificate;
@@ -110,9 +148,9 @@ namespace GeneXusCryptography.Asymmetric
             switch (asymmetricSigningAlgorithm)
             {
                 case AsymmetricSigningAlgorithm.RSA:
-                    return verifyRSA(plainText, signature, cert);
+                    return verifyRSA(input, signature, cert);
                 case AsymmetricSigningAlgorithm.ECDSA:
-                    return verifyECDSA(plainText, signature, cert);
+                    return verifyECDSA(input, signature, cert);
                 default:
                     this.error.setError("AE048", "Cannot verify signature");
                     return false;
@@ -121,19 +159,12 @@ namespace GeneXusCryptography.Asymmetric
         }
 
 
-        private bool verifyRSA(string plainText, string signature, CertificateX509 cert)
+        private bool verifyRSA(byte[] input, string signature, CertificateX509 cert)
         {
 
             HashAlgorithm hashAlgorithm = (HashAlgorithm)Enum.Parse(typeof(HashAlgorithm), cert.getPublicKeyHash());
             if (HashAlgorithm.NONE != hashAlgorithm)
             {
-                EncodingUtil eu = new EncodingUtil();
-                byte[] inputText = eu.getBytes(plainText);
-                if (eu.GetError().existsError())
-                {
-                    this.error = eu.GetError();
-                    return false;
-                }
                 Hashing digest = new Hashing();
                 IDigest hash = digest.createHash(hashAlgorithm);
                 if (digest.GetError().existsError())
@@ -144,7 +175,7 @@ namespace GeneXusCryptography.Asymmetric
                 RsaDigestSigner signerRSA = new RsaDigestSigner(hash);
                 AsymmetricKeyParameter asymmetricKeyParameter = cert.getPublicKeyParameterForSigning();
                 signerRSA.Init(false, asymmetricKeyParameter);
-                signerRSA.BlockUpdate(inputText, 0, inputText.Length);
+                signerRSA.BlockUpdate(input, 0, input.Length);
                 byte[] signatureBytes = Base64.Decode(signature);
                 if (signatureBytes == null || signatureBytes.Length == 0)
                 {
@@ -164,10 +195,9 @@ namespace GeneXusCryptography.Asymmetric
         /// <param name="signature">string Base64 signature of plainText</param>
         /// <param name="km">KeyManager Data Type loaded with keys and key information</param>
         /// <returns>boolean true if signature is valid for the specified parameters, false if it is invalid</returns>
-        private bool verifyECDSA(string plainText, string signature, CertificateX509 cert)
+        private bool verifyECDSA(byte[] input, string signature, CertificateX509 cert)
         {
             HashAlgorithm hashAlgorithm;
-            EncodingUtil eu = new EncodingUtil();
             if (SecurityUtils.compareStrings(cert.getPublicKeyHash(), "ECDSA"))
             {
                 hashAlgorithm = HashAlgorithm.SHA1;
@@ -191,13 +221,6 @@ namespace GeneXusCryptography.Asymmetric
                 return false;
             }
             digestSigner.Init(false, asymmetricKeyParameter);
-
-            byte[] input = eu.getBytes(plainText);
-            if (eu.GetError().existsError())
-            {
-                this.error = eu.GetError();
-                return false;
-            }
             digestSigner.BlockUpdate(input, 0, input.Length);
             byte[] signatureBytes = Base64.Decode(signature);
             if (signatureBytes == null || signatureBytes.Length == 0)
@@ -216,7 +239,7 @@ namespace GeneXusCryptography.Asymmetric
         /// <param name="plainText">string UTF-8 to sign</param>
         /// <param name="km">KeyManager Data Type loaded with keys and key information</param>
         /// <returns>string Base64 ECDSA signature of plainText</returns>
-        private string signECDSA(HashAlgorithm hashAlgorithm, string plainText, PrivateKeyManager km)
+        private string signECDSA(HashAlgorithm hashAlgorithm, byte[] input, PrivateKeyManager km)
         {
             Hashing hash = new Hashing();
             IDigest digest = hash.createHash(hashAlgorithm);
@@ -233,13 +256,6 @@ namespace GeneXusCryptography.Asymmetric
                 return "";
             }
             digestSigner.Init(true, asymmetricKeyParameter);
-            EncodingUtil eu = new EncodingUtil();
-            byte[] input = eu.getBytes(plainText);
-            if (eu.GetError().existsError())
-            {
-                this.error = eu.GetError();
-                return "";
-            }
             digestSigner.BlockUpdate(input, 0, input.Length);
             byte[] output = digestSigner.GenerateSignature();
             if (output == null || output.Length == 0)
@@ -257,17 +273,10 @@ namespace GeneXusCryptography.Asymmetric
         /// <param name="plainText">string UTF-8 to sign</param>
         /// <param name="km">KeyManager Data Type loaded with keys and key information</param>
         /// <returns>string Base64 RSA signature of plainText</returns>
-        private string signRSA(HashAlgorithm hashAlgorithm, string plainText, PrivateKeyManager km)
+        private string signRSA(HashAlgorithm hashAlgorithm, byte[] input, PrivateKeyManager km)
         {
             if (HashAlgorithm.NONE != hashAlgorithm)
             {
-                EncodingUtil eu = new EncodingUtil();
-                byte[] inputText = eu.getBytes(plainText);
-                if (eu.GetError().existsError())
-                {
-                    this.error = eu.GetError();
-                    return "";
-                }
                 Hashing digest = new Hashing();
                 IDigest hash = digest.createHash(hashAlgorithm);
                 if (digest.GetError().existsError())
@@ -283,7 +292,7 @@ namespace GeneXusCryptography.Asymmetric
                     return "";
                 }
                 signerRSA.Init(true, asymmetricKeyParameter);
-                signerRSA.BlockUpdate(inputText, 0, inputText.Length);
+                signerRSA.BlockUpdate(input, 0, input.Length);
                 byte[] outputBytes;
                 try
                 {
