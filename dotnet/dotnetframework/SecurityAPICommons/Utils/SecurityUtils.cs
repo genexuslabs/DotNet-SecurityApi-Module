@@ -46,6 +46,20 @@ namespace SecurityAPICommons.Utils
             return aux;
         }
 
+        [SecuritySafeCritical]
+        public static Stream getFileStream(string pathInput, Error error)
+		{
+            Stream aux = null;
+                try
+			{
+                aux = new FileStream(pathInput, FileMode.Open);
+			}catch(Exception e)
+			{
+                error.setError("SU002", e.Message);
+			}
+            return aux;
+		}
+
         /// <summary>
         /// Verifies if the file has some extension type
         /// </summary>

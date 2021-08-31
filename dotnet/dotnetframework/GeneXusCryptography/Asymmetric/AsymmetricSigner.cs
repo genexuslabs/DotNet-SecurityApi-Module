@@ -12,6 +12,7 @@ using GeneXusCryptography.Commons;
 using System;
 using System.Security;
 using SecurityAPICommons.Utils;
+using System.IO;
 
 namespace GeneXusCryptography.Asymmetric
 {
@@ -43,18 +44,28 @@ namespace GeneXusCryptography.Asymmetric
                 this.error = eu.GetError();
                 return "";
             }
-            return DoSignPKCS12(key, hashAlgorithm, inputText);
+            string aux = "";
+            using (Stream istream = new MemoryStream(inputText))
+            {
+                aux = DoSignPKCS12(key, hashAlgorithm, istream);
+            }
+            return aux;
         }
 
         [SecuritySafeCritical]
         public string DoSignFile(PrivateKeyManager key, string hashAlgorithm, string path)
         {
-            byte[] input = SecurityUtils.getFileBytes(path, this.error);
-            if (this.HasError())
+            string aux = "";
+            using (Stream input = SecurityUtils.getFileStream(path, this.error))
             {
-                return "";
+
+                if (this.HasError())
+                {
+                    return "";
+                }
+                aux = DoSignPKCS12(key, hashAlgorithm, input);
             }
-            return DoSignPKCS12(key, hashAlgorithm, input);
+            return aux;
         }
 
 
@@ -69,18 +80,28 @@ namespace GeneXusCryptography.Asymmetric
                 this.error = eu.GetError();
                 return false;
             }
-            return DoVerifyPKCS12(cert, inputText, signature);
+            bool aux = false;
+            using (Stream istream = new MemoryStream(inputText))
+            {
+                aux = DoVerifyPKCS12(cert, istream, signature);
+            }
+            return aux;
         }
 
         [SecuritySafeCritical]
         public bool DoVerifyFile(CertificateX509 cert, String path, String signature)
         {
-            byte[] input = SecurityUtils.getFileBytes(path, this.error);
-            if (this.HasError())
+            bool aux = false;
+            using (Stream input = SecurityUtils.getFileStream(path, this.error))
             {
-                return false;
+
+                if (this.HasError())
+                {
+                    return false;
+                }
+                aux = DoVerifyPKCS12(cert, input, signature);
             }
-            return DoVerifyPKCS12(cert, input, signature);
+            return aux;
         }
 
         /********EXTERNAL OBJECT PUBLIC METHODS  - END ********/
@@ -94,7 +115,7 @@ namespace GeneXusCryptography.Asymmetric
         /// <param name="password">string password of the certificate/keystore in pkcs12 format</param>
         /// <param name="plainText">string UTF-8 text to sign</param>
         /// <returns>string Base64 signature of plainText text</returns>
-        private string DoSignPKCS12(PrivateKey key, string hashAlgorithm, byte[] input)
+        private string DoSignPKCS12(PrivateKey key, string hashAlgorithm, Stream input)
         {
             this.error.cleanError();
             HashAlgorithm hash = HashAlgorithmUtils.getHashAlgorithm(hashAlgorithm, this.error);
@@ -131,7 +152,7 @@ namespace GeneXusCryptography.Asymmetric
         /// <param name="plainText">string UTF-8 text to sign</param>
         /// <param name="signature">string Base64 signature of plainText</param>
         /// <returns>boolean true if signature is valid for the specified parameters, false if it is invalid</returns>
-        private bool DoVerifyPKCS12(Certificate certificate, byte[] input, string signature)
+        private bool DoVerifyPKCS12(Certificate certificate, Stream input, string signature)
         {
             this.error.cleanError();
             CertificateX509 cert = (CertificateX509)certificate;
@@ -159,7 +180,7 @@ namespace GeneXusCryptography.Asymmetric
         }
 
 
-        private bool verifyRSA(byte[] input, string signature, CertificateX509 cert)
+        private bool verifyRSA(Stream input, string signature, CertificateX509 cert)
         {
 
             HashAlgorithm hashAlgorithm = (HashAlgorithm)Enum.Parse(typeof(HashAlgorithm), cert.getPublicKeyHash());
@@ -175,8 +196,23 @@ namespace GeneXusCryptography.Asymmetric
                 RsaDigestSigner signerRSA = new RsaDigestSigner(hash);
                 AsymmetricKeyParameter asymmetricKeyParameter = cert.getPublicKeyParameterForSigning();
                 signerRSA.Init(false, asymmetricKeyParameter);
-                signerRSA.BlockUpdate(input, 0, input.Length);
-                byte[] signatureBytes = Base64.Decode(signature);
+                byte[] buffer = new byte[8192];
+                int n;
+                byte[] signatureBytes = null;
+                try
+                {
+                    while ((n = input.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        signerRSA.BlockUpdate(buffer, 0, n);
+                    }
+                    signatureBytes = Base64.Decode(signature);
+                }
+                catch (Exception e)
+                {
+                    error.setError("AE056", e.Message);
+                    return false;
+                }
+               
                 if (signatureBytes == null || signatureBytes.Length == 0)
                 {
                     this.error.setError("AE049", "Error on signature verification");
@@ -195,7 +231,7 @@ namespace GeneXusCryptography.Asymmetric
         /// <param name="signature">string Base64 signature of plainText</param>
         /// <param name="km">KeyManager Data Type loaded with keys and key information</param>
         /// <returns>boolean true if signature is valid for the specified parameters, false if it is invalid</returns>
-        private bool verifyECDSA(byte[] input, string signature, CertificateX509 cert)
+        private bool verifyECDSA(Stream input, string signature, CertificateX509 cert)
         {
             HashAlgorithm hashAlgorithm;
             if (SecurityUtils.compareStrings(cert.getPublicKeyHash(), "ECDSA"))
@@ -221,8 +257,22 @@ namespace GeneXusCryptography.Asymmetric
                 return false;
             }
             digestSigner.Init(false, asymmetricKeyParameter);
-            digestSigner.BlockUpdate(input, 0, input.Length);
-            byte[] signatureBytes = Base64.Decode(signature);
+            byte[] buffer = new byte[8192];
+            int n;
+            byte[] signatureBytes = null;
+            try
+            {
+                while ((n = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    digestSigner.BlockUpdate(buffer, 0, n);
+                }
+                signatureBytes = Base64.Decode(signature);
+            }
+            catch (Exception e)
+            {
+                error.setError("AE056", e.Message);
+                return false;
+            }
             if (signatureBytes == null || signatureBytes.Length == 0)
             {
                 this.error.setError("AE051", "Error on signature verification");
@@ -239,7 +289,7 @@ namespace GeneXusCryptography.Asymmetric
         /// <param name="plainText">string UTF-8 to sign</param>
         /// <param name="km">KeyManager Data Type loaded with keys and key information</param>
         /// <returns>string Base64 ECDSA signature of plainText</returns>
-        private string signECDSA(HashAlgorithm hashAlgorithm, byte[] input, PrivateKeyManager km)
+        private string signECDSA(HashAlgorithm hashAlgorithm, Stream input, PrivateKeyManager km)
         {
             Hashing hash = new Hashing();
             IDigest digest = hash.createHash(hashAlgorithm);
@@ -256,8 +306,23 @@ namespace GeneXusCryptography.Asymmetric
                 return "";
             }
             digestSigner.Init(true, asymmetricKeyParameter);
-            digestSigner.BlockUpdate(input, 0, input.Length);
-            byte[] output = digestSigner.GenerateSignature();
+            byte[] buffer = new byte[8192];
+            int n;
+            byte[] output = null;
+            try
+            {
+                while ((n = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    digestSigner.BlockUpdate(buffer, 0, n);
+                }
+                output = digestSigner.GenerateSignature();
+            }
+            catch (Exception e)
+			{
+                error.setError("AE055", e.Message);
+                return "";
+			}
+            
             if (output == null || output.Length == 0)
             {
                 this.error.setError("AE052", "Error on signing");
@@ -273,7 +338,7 @@ namespace GeneXusCryptography.Asymmetric
         /// <param name="plainText">string UTF-8 to sign</param>
         /// <param name="km">KeyManager Data Type loaded with keys and key information</param>
         /// <returns>string Base64 RSA signature of plainText</returns>
-        private string signRSA(HashAlgorithm hashAlgorithm, byte[] input, PrivateKeyManager km)
+        private string signRSA(HashAlgorithm hashAlgorithm, Stream input, PrivateKeyManager km)
         {
             if (HashAlgorithm.NONE != hashAlgorithm)
             {
@@ -292,21 +357,25 @@ namespace GeneXusCryptography.Asymmetric
                     return "";
                 }
                 signerRSA.Init(true, asymmetricKeyParameter);
-                signerRSA.BlockUpdate(input, 0, input.Length);
-                byte[] outputBytes;
+
+                byte[] buffer = new byte[8192];
+                int n;
+                
+                byte[] outputBytes = null;
                 try
                 {
+                   
+                    while ((n = input.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        signerRSA.BlockUpdate(buffer, 0, n);
+                    }
                     outputBytes = signerRSA.GenerateSignature();
                 }
-                catch (DataLengthException dle)
+                catch (Exception e)
                 {
-                    this.error.setError("AE053", "RSA signing error");
-                    throw new DataLengthException("RSA signing error", dle);
-                }
-                catch (CryptoException ce)
-                {
-                    this.error.setError("AE053", "RSA signing error");
-                    throw new CryptoException("RSA signing error", ce);
+                    this.error.setError("AE053", e.Message );
+                    return "";
+                   
                 }
                 this.error.cleanError();
                 return Base64.ToBase64String(outputBytes);
