@@ -16,6 +16,7 @@ namespace SecurityAPITest.SecurityAPICommons.keys
 
 		protected static string path;
 		protected static string base64string;
+		protected static string base64Wrong;
 
 		[SetUp]
 		public virtual void SetUp()
@@ -42,5 +43,16 @@ namespace SecurityAPITest.SecurityAPICommons.keys
 			Assert.IsTrue(SecurityUtils.compareStrings(base64res, base64string));
 			Assert.IsFalse(cert.HasError());
 		}
+
+		[Test]
+		public void TestWrongBase64()
+		{
+			CertificateX509 cert = new CertificateX509();
+			cert.FromBase64(base64Wrong);
+			Assert.IsTrue(cert.HasError());
+		}
+
+
+
 	}
 }
