@@ -1,6 +1,8 @@
 # GeneXus Security API for .NET and .NET Core
 These are the source of the GeneXus Security API.
 
+:warning: This repo is not longer under development since GeneXus v17 upgrade 6. The current version of these modules can be found in https://github.com/genexuslabs/DotNetClasses/tree/master/dotnet/src/extensions/SecurityAPI
+
 ## Modules
 
 ### .NET
